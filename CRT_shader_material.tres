@@ -1,0 +1,59 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://cnht54hatwrkt"]
+
+[ext_resource type="Shader" uid="uid://csa383686emyi" path="res://crt_shader.gdshader" id="1_1fp8c"]
+
+[resource]
+shader = ExtResource("1_1fp8c")
+shader_parameter/screen_size = Vector2(0, 0)
+shader_parameter/viewport_size = Vector2(0, 0)
+shader_parameter/hardScan = -8.0
+shader_parameter/hardPix = -3.0
+shader_parameter/warpX = 0.031
+shader_parameter/warpY = 0.041
+shader_parameter/maskDark = 0.5
+shader_parameter/maskLight = 1.5
+shader_parameter/scaleInLinearGamma = true
+shader_parameter/shadowMask = 3
+shader_parameter/brightBoost = 1.0
+shader_parameter/hardBloomPix = -1.5
+shader_parameter/hardBloomScan = -2.0
+shader_parameter/bloomAmount = 0.15
+shader_parameter/shape = 2.0
+shader_parameter/doBloom = true
+shader_parameter/enable_compression = true
+shader_parameter/compression_intensity = 8.0
+shader_parameter/compression_quantization = 16.0
+shader_parameter/compression_block_size = 8.0
+shader_parameter/compression_blend = 0.7
+shader_parameter/enable_chromatic_aberration = true
+shader_parameter/red_shift = Vector2(0.002, 0)
+shader_parameter/green_shift = Vector2(0, 0)
+shader_parameter/blue_shift = Vector2(-0.002, 0)
+shader_parameter/aberration_bias = 1.0
+shader_parameter/aberration_blend = 0.8
+shader_parameter/enable_lens_distortion = true
+shader_parameter/distortion_intensity = 0.15
+shader_parameter/distortion_magnifier = 1.0
+shader_parameter/distortion_invert = false
+shader_parameter/enable_noise = true
+shader_parameter/noise_intensity = 0.08
+shader_parameter/noise_scale = 50.0
+shader_parameter/noise_framerate = 24.0
+shader_parameter/noise_midtones = 1.0
+shader_parameter/noise_shadows = 1.2
+shader_parameter/noise_highlights = 0.8
+shader_parameter/enable_halation = false
+shader_parameter/halation_amount = 0.3
+shader_parameter/halation_threshold = 0.8
+shader_parameter/halation_size = 2.0
+shader_parameter/halation_color_filter = Vector3(1, 0.9, 0.8)
+shader_parameter/enable_sharpen = false
+shader_parameter/sharpen_intensity = 1.0
+shader_parameter/sharpen_offset = 1.0
+shader_parameter/enable_soften = false
+shader_parameter/soften_strength = 1.0
+shader_parameter/soften_blend = 0.5
+shader_parameter/enable_vignette = true
+shader_parameter/vignette_intensity = 0.4
+shader_parameter/vignette_size = 0.8
+shader_parameter/vignette_color = Vector3(0, 0, 0)

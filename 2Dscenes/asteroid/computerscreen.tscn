@@ -1,0 +1,65 @@
+[gd_scene load_steps=6 format=3 uid="uid://dgdqnps87qglj"]
+
+[ext_resource type="Texture2D" uid="uid://cpg4ark8sk10x" path="res://Assets/texture/black.png" id="1_qs5h5"]
+[ext_resource type="Script" uid="uid://dmc17t6fhxv4s" path="res://2Dscenes/asteroid/computerscreen.gd" id="1_xwhv5"]
+[ext_resource type="Texture2D" uid="uid://cm11msjwuqtbn" path="res://2Dscenes/asteroid/spaceship.png" id="2_xwhv5"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_s52wp"]
+size = Vector2(4125, 81)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xwhv5"]
+size = Vector2(1168, 139)
+
+[node name="Computer Game" type="Node2D"]
+scale = Vector2(1.5, 1.5)
+script = ExtResource("1_xwhv5")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(559.2, 384.8)
+scale = Vector2(2372.8, 1742.4)
+texture = ExtResource("1_qs5h5")
+
+[node name="Spaceship" type="Sprite2D" parent="."]
+position = Vector2(91, 617)
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("2_xwhv5")
+
+[node name="player_hitbox" type="Area2D" parent="Spaceship"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Spaceship/player_hitbox"]
+position = Vector2(74.9997, 30.5)
+shape = SubResource("RectangleShape2D_s52wp")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Control" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 0
+offset_left = 23.0
+offset_top = 21.0
+offset_right = 224.0
+offset_bottom = 73.0
+text = "SCORE:"
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(589, 352)
+zoom = Vector2(1.05, 1.05)
+
+[node name="Bullets" type="Node2D" parent="."]
+
+[node name="Asteroids" type="Node2D" parent="."]
+
+[node name="AsteroidSpawnTimer" type="Timer" parent="."]
+
+[node name="AsteroidSpawnArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AsteroidSpawnArea"]
+position = Vector2(574, -59.5)
+shape = SubResource("RectangleShape2D_xwhv5")

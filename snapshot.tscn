@@ -1,0 +1,65 @@
+[gd_scene load_steps=6 format=3 uid="uid://cy87wmnljmdg1"]
+
+[ext_resource type="Script" uid="uid://crp00g4yxb054" path="res://sub_viewport_container.gd" id="1_68ren"]
+[ext_resource type="PackedScene" uid="uid://durtcdilcfqt7" path="res://Assets/plants/tree_01_3.tscn" id="2_k81jv"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_68ren"]
+sky_top_color = Color(0.272488, 0.555399, 0.852535, 1)
+sky_horizon_color = Color(0.945098, 0.427451, 0.356863, 1)
+sky_curve = 0.1
+ground_bottom_color = Color(0.2, 0.168627, 0.133333, 1)
+ground_horizon_color = Color(0.647059, 0.654902, 0.670588, 1)
+
+[sub_resource type="Sky" id="Sky_pvxm0"]
+sky_material = SubResource("ProceduralSkyMaterial_68ren")
+
+[sub_resource type="Environment" id="Environment_k81jv"]
+background_mode = 2
+sky = SubResource("Sky_pvxm0")
+ambient_light_source = 3
+fog_enabled = true
+fog_mode = 1
+fog_light_color = Color(0.272326, 0.298018, 0.338406, 1)
+fog_density = 0.5
+fog_sky_affect = 0.0
+fog_depth_curve = 11.7127
+volumetric_fog_density = 0.02
+volumetric_fog_albedo = Color(0.389287, 0.389287, 0.389287, 1)
+volumetric_fog_emission_energy = 0.5
+
+[node name="Node3D" type="Node3D"]
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_68ren")
+
+[node name="SubViewport" type="SubViewport" parent="SubViewportContainer"]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(2048, 2048)
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="SubViewportContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 0.989387, -0.145306, 0, 0.145306, 0.989387, -0.665163, 1.0061, 1.56553)
+
+[node name="Tree-01-3" parent="SubViewportContainer/SubViewport" instance=ExtResource("2_k81jv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.56158, -6.0337)
+
+[node name="Tree-01-4" parent="SubViewportContainer/SubViewport" instance=ExtResource("2_k81jv")]
+transform = Transform3D(0.624411, 0, 0.781096, 0, 1, 0, -0.781096, 0, 0.624411, 2.95212, -1.56158, -6.0337)
+
+[node name="Tree-01-5" parent="SubViewportContainer/SubViewport" instance=ExtResource("2_k81jv")]
+transform = Transform3D(0.624411, 0, 0.781096, 0, 1, 0, -0.781096, 0, 0.624411, -3.99799, -1.56158, -6.0337)
+
+[node name="Tree-01-6" parent="SubViewportContainer/SubViewport" instance=ExtResource("2_k81jv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.25739, -1.56158, -10.6525)
+
+[node name="Tree-01-7" parent="SubViewportContainer/SubViewport" instance=ExtResource("2_k81jv")]
+transform = Transform3D(0.624411, 0, 0.781096, 0, 1, 0, -0.781096, 0, 0.624411, 5.20951, -1.56158, -10.6525)
+
+[node name="Tree-01-8" parent="SubViewportContainer/SubViewport" instance=ExtResource("2_k81jv")]
+transform = Transform3D(0.624411, 0, 0.781096, 0, 1, 0, -0.781096, 0, 0.624411, -1.74059, -1.56158, -10.6525)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="SubViewportContainer/SubViewport" groups=["world_environment"]]
+environment = SubResource("Environment_k81jv")

@@ -1,0 +1,78 @@
+[gd_scene load_steps=6 format=3 uid="uid://bxpj1i6hunwbm"]
+
+[ext_resource type="PackedScene" uid="uid://bv08b01qy5hjs" path="res://Assets/truck3/ice_cream_truck.tscn" id="1_y7k74"]
+[ext_resource type="FontFile" uid="uid://wwe8ksgtl75n" path="res://Assets/font/Rubik_Glitch/RubikGlitch-Regular.ttf" id="2_oyqm6"]
+[ext_resource type="FontFile" uid="uid://rep4blm3aj2e" path="res://Assets/font/Neuton/Neuton-Light.ttf" id="3_kpexm"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oyqm6"]
+albedo_color = Color(0.158472, 0.158472, 0.158472, 1)
+
+[sub_resource type="Environment" id="Environment_y7k74"]
+background_mode = 1
+background_color = Color(0.00566115, 0.00566115, 0.00566115, 1)
+
+[node name="Title" type="Node3D"]
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.9628, 0, 24.9052)
+size = Vector3(50, 1, 50)
+material = SubResource("StandardMaterial3D_oyqm6")
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="CSGBox3D"]
+transform = Transform3D(1, 0, 0, 0, -2.98023e-08, 1, 0, -1, -2.98023e-08, 0, 0, -14)
+size = Vector3(32.9257, 1, 32.8105)
+material = SubResource("StandardMaterial3D_oyqm6")
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="CSGBox3D"]
+transform = Transform3D(-4.37114e-08, 1, 2.98023e-08, 0, -2.98023e-08, 1, 1, 4.37114e-08, 1.3027e-15, -17, 0, 0)
+size = Vector3(32.9257, 1, 32.8105)
+material = SubResource("StandardMaterial3D_oyqm6")
+
+[node name="Truck3" parent="." instance=ExtResource("1_y7k74")]
+transform = Transform3D(0.676272, 0, -0.736652, 0, 1, 0, 0.736652, 0, 0.676272, 25.2266, 2.07884, 23.7574)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_y7k74")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.110931, 0, 0.993828, 0, 1, 0, -0.993828, 0, 0.110931, 36.0401, 4, 30.0962)
+fov = 48.1
+
+[node name="SpotLight3D" type="SpotLight3D" parent="."]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 1.49012e-08, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 29, 11, 33)
+light_color = Color(0.454661, 0.333221, 0.35309, 1)
+light_energy = 5.822
+spot_range = 25.0
+spot_attenuation = 0.18
+spot_angle = 19.6875
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Control" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="CanvasLayer/Control"]
+layout_mode = 0
+offset_left = 190.0
+offset_top = 149.0
+offset_right = 856.0
+offset_bottom = 306.0
+theme_override_colors/font_shadow_color = Color(1, 1, 1, 1)
+theme_override_fonts/normal_font = ExtResource("2_oyqm6")
+theme_override_font_sizes/normal_font_size = 110
+text = "Ice Scream"
+
+[node name="RichTextLabel2" type="RichTextLabel" parent="CanvasLayer/Control"]
+layout_mode = 0
+offset_left = 266.0
+offset_top = 279.0
+offset_right = 765.0
+offset_bottom = 432.0
+theme_override_fonts/normal_font = ExtResource("3_kpexm")
+theme_override_font_sizes/normal_font_size = 60
+text = "Coming soon to Steam"
