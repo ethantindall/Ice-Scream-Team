@@ -1,9 +1,3 @@
-[gd_scene load_steps=2 format=3 uid="uid://d2it0xiap3gnt"]
-
-[ext_resource type="Script" uid="uid://dcae6nsh8fgtp" path="res://addons/dialogic/Modules/DefaultLayoutParts/Layer_Textbubble/text_bubble_layer.gd" id="1_b37je"]
-
-[node name="TextBubbleLayer" type="Control"]
-layout_mode = 3
-anchors_preset = 0
-mouse_filter = 2
-script = ExtResource("1_b37je")
+version https://git-lfs.github.com/spec/v1
+oid sha256:f077544c87bb76fb2cc00bcca979c2402040c9f6f7a83472a70095a07cadab05
+size 352

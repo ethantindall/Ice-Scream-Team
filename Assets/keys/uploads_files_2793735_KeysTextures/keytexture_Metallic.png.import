@@ -1,34 +1,3 @@
-[remap]
-
-importer="texture"
-type="CompressedTexture2D"
-uid="uid://jx3gxuar44sc"
-path="res://.godot/imported/keytexture_Metallic.png-362d6efb18e20336002dd86e9be38850.ctex"
-metadata={
-"vram_texture": false
-}
-
-[deps]
-
-source_file="res://Assets/keys/uploads_files_2793735_KeysTextures/keytexture_Metallic.png"
-dest_files=["res://.godot/imported/keytexture_Metallic.png-362d6efb18e20336002dd86e9be38850.ctex"]
-
-[params]
-
-compress/mode=0
-compress/high_quality=false
-compress/lossy_quality=0.7
-compress/hdr_compression=1
-compress/normal_map=0
-compress/channel_pack=0
-mipmaps/generate=false
-mipmaps/limit=-1
-roughness/mode=0
-roughness/src_normal=""
-process/fix_alpha_border=true
-process/premult_alpha=false
-process/normal_map_invert_y=false
-process/hdr_as_srgb=false
-process/hdr_clamp_exposure=false
-process/size_limit=0
-detect_3d/compress_to=1
+version https://git-lfs.github.com/spec/v1
+oid sha256:a514bac10ef88ec9eeb7355e93575c03ec1e74d0ecbb3e208d3acba36f0fe0a1
+size 837

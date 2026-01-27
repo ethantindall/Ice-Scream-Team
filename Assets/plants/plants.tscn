@@ -1,5 +1,3 @@
-[gd_scene load_steps=2 format=3 uid="uid://625g7ruwr2ni"]
-
-[ext_resource type="PackedScene" uid="uid://c4tu5s0qfndvk" path="res://Assets/plants/uploads_files_3523647_shapespark-low-poly-plants-kit-double-sided-for-baking.fbx" id="1_yrjpd"]
-
-[node name="plants" instance=ExtResource("1_yrjpd")]
+version https://git-lfs.github.com/spec/v1
+oid sha256:174a95bf71ed1ac83b520e89a45ef072b23198409162437c9911e30ac99f5865
+size 294

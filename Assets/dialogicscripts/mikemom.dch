@@ -1,21 +1,3 @@
-{
-"@path": "res://addons/dialogic/Resources/character.gd",
-"@subpath": NodePath(""),
-&"_translation_id": "",
-&"color": Color(1, 1, 1, 1),
-&"custom_info": {
-"prefix": "",
-"sound_mood_default": "",
-"sound_moods": {},
-"style": "",
-"suffix": ""
-},
-&"default_portrait": "",
-&"description": "",
-&"display_name": "Mike's Mom",
-&"mirror": false,
-&"nicknames": [""],
-&"offset": Vector2(0, 0),
-&"portraits": {},
-&"scale": 1.0
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:eb3dd915f8ec5b2fde9b02f6fc80ecea0be2400c8120058903f403f35d94477e
+size 417

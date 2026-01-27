@@ -1,21 +1,3 @@
-{
-"@path": "res://addons/dialogic/Resources/character.gd",
-"@subpath": NodePath(""),
-&"_translation_id": "",
-&"color": Color(1, 1, 1, 1),
-&"custom_info": {
-"prefix": "",
-"sound_mood_default": "",
-"sound_moods": {},
-"style": "New_File",
-"suffix": ""
-},
-&"default_portrait": "",
-&"description": "",
-&"display_name": "Timmy",
-&"mirror": false,
-&"nicknames": [""],
-&"offset": Vector2(0, 0),
-&"portraits": {},
-&"scale": 1.0
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:5fa182974c5f4162c29e78c7b1bd6502e7263eecf66d3b1bf613f29b73960dbc
+size 420

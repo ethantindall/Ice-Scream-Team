@@ -1,35 +1,3 @@
-[remap]
-
-importer="texture"
-type="CompressedTexture2D"
-uid="uid://cgx385gm5pnnc"
-path.s3tc="res://.godot/imported/derevo-tekstura-pol-parket-dom_012.jpg-9f8ebbe68671de8a1006a2c2208f40ea.s3tc.ctex"
-metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
-}
-
-[deps]
-
-source_file="res://Assets/misc/Playground/textyr/derevo-tekstura-pol-parket-dom_012.jpg"
-dest_files=["res://.godot/imported/derevo-tekstura-pol-parket-dom_012.jpg-9f8ebbe68671de8a1006a2c2208f40ea.s3tc.ctex"]
-
-[params]
-
-compress/mode=2
-compress/high_quality=false
-compress/lossy_quality=0.7
-compress/hdr_compression=1
-compress/normal_map=0
-compress/channel_pack=0
-mipmaps/generate=true
-mipmaps/limit=-1
-roughness/mode=0
-roughness/src_normal=""
-process/fix_alpha_border=true
-process/premult_alpha=false
-process/normal_map_invert_y=false
-process/hdr_as_srgb=false
-process/hdr_clamp_exposure=false
-process/size_limit=0
-detect_3d/compress_to=0
+version https://git-lfs.github.com/spec/v1
+oid sha256:3356ff1b8167c07f5d864cf146fc60a2f7803aac8613993cce6563af20650bce
+size 914

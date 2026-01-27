@@ -1,19 +1,3 @@
-[remap]
-
-importer="oggvorbisstr"
-type="AudioStreamOggVorbis"
-uid="uid://bo3v5k55cpcjw"
-path="res://.godot/imported/Car_Acceleration.ogg-c3b520c6a7ab0de6326498222048b74d.oggvorbisstr"
-
-[deps]
-
-source_file="res://Assets/big car pack/PSX_Style_Cars_by_GGBot_(August2023)/Sound effects/Car_Acceleration.ogg"
-dest_files=["res://.godot/imported/Car_Acceleration.ogg-c3b520c6a7ab0de6326498222048b74d.oggvorbisstr"]
-
-[params]
-
-loop=false
-loop_offset=0
-bpm=0
-beat_count=0
-bar_beats=4
+version https://git-lfs.github.com/spec/v1
+oid sha256:873ba0c1300ca44809a66341f8148bf292e086176bda0a3d333286a188e94c5f
+size 475

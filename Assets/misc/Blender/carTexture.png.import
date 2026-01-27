@@ -1,35 +1,3 @@
-[remap]
-
-importer="texture"
-type="CompressedTexture2D"
-uid="uid://brggm0pp26sbg"
-path.s3tc="res://.godot/imported/carTexture.png-6295e978284e4a70f9cb6e8692476007.s3tc.ctex"
-metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
-}
-
-[deps]
-
-source_file="res://Assets/misc/Blender/carTexture.png"
-dest_files=["res://.godot/imported/carTexture.png-6295e978284e4a70f9cb6e8692476007.s3tc.ctex"]
-
-[params]
-
-compress/mode=2
-compress/high_quality=false
-compress/lossy_quality=0.7
-compress/hdr_compression=1
-compress/normal_map=0
-compress/channel_pack=0
-mipmaps/generate=true
-mipmaps/limit=-1
-roughness/mode=0
-roughness/src_normal=""
-process/fix_alpha_border=true
-process/premult_alpha=false
-process/normal_map_invert_y=false
-process/hdr_as_srgb=false
-process/hdr_clamp_exposure=false
-process/size_limit=0
-detect_3d/compress_to=0
+version https://git-lfs.github.com/spec/v1
+oid sha256:2b5bf6f5065769dc131321e97e7ff4ca0f9b58ccbddf0efff0e02e1d34032c4f
+size 832

@@ -1,21 +1,3 @@
-{
-"@path": "res://addons/dialogic/Resources/character.gd",
-"@subpath": NodePath(""),
-&"_translation_id": "",
-&"color": Color(1, 1, 1, 1),
-&"custom_info": {
-"prefix": "",
-"sound_mood_default": "",
-"sound_moods": {},
-"style": "",
-"suffix": ""
-},
-&"default_portrait": "",
-&"description": "",
-&"display_name": "Ice Cream Man",
-&"mirror": false,
-&"nicknames": [""],
-&"offset": Vector2(0, 0),
-&"portraits": {},
-&"scale": 1.0
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:5c8fbbd862d949462367bb10b4d165319aa5b7faee7246aca82a3b395324dc54
+size 420

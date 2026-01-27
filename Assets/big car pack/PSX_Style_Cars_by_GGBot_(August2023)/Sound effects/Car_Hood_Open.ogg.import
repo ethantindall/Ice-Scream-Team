@@ -1,19 +1,3 @@
-[remap]
-
-importer="oggvorbisstr"
-type="AudioStreamOggVorbis"
-uid="uid://tj1vypccj2xm"
-path="res://.godot/imported/Car_Hood_Open.ogg-ce5596d942365e15f5ef397e8efcda32.oggvorbisstr"
-
-[deps]
-
-source_file="res://Assets/big car pack/PSX_Style_Cars_by_GGBot_(August2023)/Sound effects/Car_Hood_Open.ogg"
-dest_files=["res://.godot/imported/Car_Hood_Open.ogg-ce5596d942365e15f5ef397e8efcda32.oggvorbisstr"]
-
-[params]
-
-loop=false
-loop_offset=0
-bpm=0
-beat_count=0
-bar_beats=4
+version https://git-lfs.github.com/spec/v1
+oid sha256:8ecf8a54f0055daa6b0726ef8c0af21e277e928d38677ba7737671f533b32e87
+size 465

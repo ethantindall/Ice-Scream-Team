@@ -1,35 +1,3 @@
-[remap]
-
-importer="texture"
-type="CompressedTexture2D"
-uid="uid://c6foqeacuqtio"
-path.s3tc="res://.godot/imported/doku paleti.png-9d46197cbca054a7bfc8bed8daf65f27.s3tc.ctex"
-metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
-}
-
-[deps]
-
-source_file="res://Assets/desks/desk and pc/uploads_files_4746254_texture+and+fbx/doku paleti.png"
-dest_files=["res://.godot/imported/doku paleti.png-9d46197cbca054a7bfc8bed8daf65f27.s3tc.ctex"]
-
-[params]
-
-compress/mode=2
-compress/high_quality=false
-compress/lossy_quality=0.7
-compress/hdr_compression=1
-compress/normal_map=0
-compress/channel_pack=0
-mipmaps/generate=true
-mipmaps/limit=-1
-roughness/mode=0
-roughness/src_normal=""
-process/fix_alpha_border=true
-process/premult_alpha=false
-process/normal_map_invert_y=false
-process/hdr_as_srgb=false
-process/hdr_clamp_exposure=false
-process/size_limit=0
-detect_3d/compress_to=0
+version https://git-lfs.github.com/spec/v1
+oid sha256:d790698c0c3ea73a56269324b62346f102def88a09f8669f451c469ebbb74e9d
+size 878

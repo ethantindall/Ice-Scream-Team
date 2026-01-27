@@ -1,35 +1,3 @@
-[remap]
-
-importer="texture"
-type="CompressedTexture2D"
-uid="uid://gqgw6cyn4h0c"
-path.s3tc="res://.godot/imported/Fabric_06.jpg-6d1aed938a73d237f533dfd417422028.s3tc.ctex"
-metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
-}
-
-[deps]
-
-source_file="res://Assets/g pack/All/Textures/Fabric_06.jpg"
-dest_files=["res://.godot/imported/Fabric_06.jpg-6d1aed938a73d237f533dfd417422028.s3tc.ctex"]
-
-[params]
-
-compress/mode=2
-compress/high_quality=false
-compress/lossy_quality=0.7
-compress/hdr_compression=1
-compress/normal_map=0
-compress/channel_pack=0
-mipmaps/generate=true
-mipmaps/limit=-1
-roughness/mode=0
-roughness/src_normal=""
-process/fix_alpha_border=true
-process/premult_alpha=false
-process/normal_map_invert_y=false
-process/hdr_as_srgb=false
-process/hdr_clamp_exposure=false
-process/size_limit=0
-detect_3d/compress_to=0
+version https://git-lfs.github.com/spec/v1
+oid sha256:8f1f071c2006abfc7dd309a4d59df8ba2497f9af7655d9892cc9dbbf3ec35db6
+size 835

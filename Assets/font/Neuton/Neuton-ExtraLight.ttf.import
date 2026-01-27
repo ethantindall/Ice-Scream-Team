@@ -1,35 +1,3 @@
-[remap]
-
-importer="font_data_dynamic"
-type="FontFile"
-uid="uid://d1lhnxaix3ct"
-path="res://.godot/imported/Neuton-ExtraLight.ttf-98db9c2f05adb966a1ce7803e013b56d.fontdata"
-
-[deps]
-
-source_file="res://Assets/font/Neuton/Neuton-ExtraLight.ttf"
-dest_files=["res://.godot/imported/Neuton-ExtraLight.ttf-98db9c2f05adb966a1ce7803e013b56d.fontdata"]
-
-[params]
-
-Rendering=null
-antialiasing=1
-generate_mipmaps=false
-disable_embedded_bitmaps=true
-multichannel_signed_distance_field=false
-msdf_pixel_range=8
-msdf_size=48
-allow_system_fallback=true
-force_autohinter=false
-hinting=1
-subpixel_positioning=4
-keep_rounding_remainders=true
-oversampling=0.0
-Fallbacks=null
-fallbacks=[]
-Compress=null
-compress=true
-preload=[]
-language_support={}
-script_support={}
-opentype_features={}
+version https://git-lfs.github.com/spec/v1
+oid sha256:e57464012feab627359afb548628e67f724b61673a197a1a76597cc66604d9b6
+size 766

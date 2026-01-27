@@ -1,25 +1,3 @@
-[remap]
-
-importer="wavefront_obj"
-importer_version=1
-type="Mesh"
-uid="uid://bderkp6d56bv5"
-path="res://.godot/imported/Car3.obj-5e535c28349ae0a12ff1eb46d31555cf.mesh"
-
-[deps]
-
-files=["res://.godot/imported/Car3.obj-5e535c28349ae0a12ff1eb46d31555cf.mesh"]
-
-source_file="res://Assets/big car pack/PSX_Style_Cars_by_GGBot_(August2023)/Car 03/Car3.obj"
-dest_files=["res://.godot/imported/Car3.obj-5e535c28349ae0a12ff1eb46d31555cf.mesh", "res://.godot/imported/Car3.obj-5e535c28349ae0a12ff1eb46d31555cf.mesh"]
-
-[params]
-
-generate_tangents=true
-generate_lods=true
-generate_shadow_mesh=true
-generate_lightmap_uv2=false
-generate_lightmap_uv2_texel_size=0.2
-scale_mesh=Vector3(1, 1, 1)
-offset_mesh=Vector3(0, 0, 0)
-force_disable_mesh_compression=false
+version https://git-lfs.github.com/spec/v1
+oid sha256:286c04d2711a8f3347ed4d8df4493f66369f15b31130d97de9466bffcf06a00a
+size 743

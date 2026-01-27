@@ -1,19 +1,3 @@
-[remap]
-
-importer="oggvorbisstr"
-type="AudioStreamOggVorbis"
-uid="uid://b1ftidpsuisax"
-path="res://.godot/imported/Car2_Engine_Turning_Off.ogg-186264eb308b5b62354dd5ea8dbcbf6d.oggvorbisstr"
-
-[deps]
-
-source_file="res://Assets/big car pack/PSX_Style_Cars_by_GGBot_(August2023)/Sound effects/Car2_Engine_Turning_Off.ogg"
-dest_files=["res://.godot/imported/Car2_Engine_Turning_Off.ogg-186264eb308b5b62354dd5ea8dbcbf6d.oggvorbisstr"]
-
-[params]
-
-loop=false
-loop_offset=0
-bpm=0
-beat_count=0
-bar_beats=4
+version https://git-lfs.github.com/spec/v1
+oid sha256:8f9eac082562873f44fa4aa74949b163b8533f75b2066bfe338538685167d2e9
+size 496

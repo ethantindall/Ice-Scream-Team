@@ -1,21 +1,3 @@
-{
-"@path": "res://addons/dialogic/Resources/character.gd",
-"@subpath": NodePath(""),
-&"_translation_id": "",
-&"color": Color(1, 1, 1, 1),
-&"custom_info": {
-"prefix": "",
-"sound_mood_default": "",
-"sound_moods": {},
-"style": "",
-"suffix": ""
-},
-&"default_portrait": "",
-&"description": "",
-&"display_name": "Player",
-&"mirror": false,
-&"nicknames": [""],
-&"offset": Vector2(0, 0),
-&"portraits": {},
-&"scale": 1.0
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:d0794a5f1b0471806242db661c9536c13ac3230f260dc8c961c12f2479737127
+size 413

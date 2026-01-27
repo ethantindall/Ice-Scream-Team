@@ -1,35 +1,3 @@
-[remap]
-
-importer="texture"
-type="CompressedTexture2D"
-uid="uid://c7mbys6g1bxdw"
-path.s3tc="res://.godot/imported/Plastic_05.png-110cc664c0c10231a8036b6d4cb867e8.s3tc.ctex"
-metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
-}
-
-[deps]
-
-source_file="res://Assets/g pack/All/Textures/Plastic_05.png"
-dest_files=["res://.godot/imported/Plastic_05.png-110cc664c0c10231a8036b6d4cb867e8.s3tc.ctex"]
-
-[params]
-
-compress/mode=2
-compress/high_quality=false
-compress/lossy_quality=0.7
-compress/hdr_compression=1
-compress/normal_map=0
-compress/channel_pack=0
-mipmaps/generate=true
-mipmaps/limit=-1
-roughness/mode=0
-roughness/src_normal=""
-process/fix_alpha_border=true
-process/premult_alpha=false
-process/normal_map_invert_y=false
-process/hdr_as_srgb=false
-process/hdr_clamp_exposure=false
-process/size_limit=0
-detect_3d/compress_to=0
+version https://git-lfs.github.com/spec/v1
+oid sha256:69a3efd4b87f6000cfdfd16a3181009b2a474ec3060a2a4f950515aafeeb47a3
+size 839

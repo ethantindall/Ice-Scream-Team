@@ -1,35 +1,3 @@
-[remap]
-
-importer="font_data_dynamic"
-type="FontFile"
-uid="uid://dnts2n5jkb67o"
-path="res://.godot/imported/GoogleSansCode-VariableFont_wght.ttf-8dd7bfc29d0f91094ee88f4f79b26058.fontdata"
-
-[deps]
-
-source_file="res://Assets/font/Google_Sans_Code/GoogleSansCode-VariableFont_wght.ttf"
-dest_files=["res://.godot/imported/GoogleSansCode-VariableFont_wght.ttf-8dd7bfc29d0f91094ee88f4f79b26058.fontdata"]
-
-[params]
-
-Rendering=null
-antialiasing=1
-generate_mipmaps=false
-disable_embedded_bitmaps=true
-multichannel_signed_distance_field=false
-msdf_pixel_range=8
-msdf_size=48
-allow_system_fallback=true
-force_autohinter=false
-hinting=1
-subpixel_positioning=4
-keep_rounding_remainders=true
-oversampling=0.0
-Fallbacks=null
-fallbacks=[]
-Compress=null
-compress=true
-preload=[]
-language_support={}
-script_support={}
-opentype_features={}
+version https://git-lfs.github.com/spec/v1
+oid sha256:0574e8aa821a2efe15b6169e642fe49d751dff6a8d91325aafffe6fd468b337d
+size 822

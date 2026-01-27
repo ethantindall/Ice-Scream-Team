@@ -1,35 +1,3 @@
-[remap]
-
-importer="font_data_dynamic"
-type="FontFile"
-uid="uid://ba1ujb4y5vdjk"
-path="res://.godot/imported/GoogleSansCode-SemiBoldItalic.ttf-639b3cfc15bfdd782d20ca185bb75cf8.fontdata"
-
-[deps]
-
-source_file="res://Assets/font/Google_Sans_Code/static/GoogleSansCode-SemiBoldItalic.ttf"
-dest_files=["res://.godot/imported/GoogleSansCode-SemiBoldItalic.ttf-639b3cfc15bfdd782d20ca185bb75cf8.fontdata"]
-
-[params]
-
-Rendering=null
-antialiasing=1
-generate_mipmaps=false
-disable_embedded_bitmaps=true
-multichannel_signed_distance_field=false
-msdf_pixel_range=8
-msdf_size=48
-allow_system_fallback=true
-force_autohinter=false
-hinting=1
-subpixel_positioning=4
-keep_rounding_remainders=true
-oversampling=0.0
-Fallbacks=null
-fallbacks=[]
-Compress=null
-compress=true
-preload=[]
-language_support={}
-script_support={}
-opentype_features={}
+version https://git-lfs.github.com/spec/v1
+oid sha256:70775f8fc51830082ee026e946fadb0acbd9bbfab911d41f38e7dcd8298b2296
+size 820

@@ -1,25 +1,3 @@
-[gd_scene load_steps=7 format=3 uid="uid://bpbcd2xkuun31"]
-
-[ext_resource type="PackedScene" uid="uid://c8adgfhi4wfdh" path="res://Assets/houses/house3/3d-model.dae" id="1_ggfsn"]
-[ext_resource type="Texture2D" uid="uid://bq8acflwd66t0" path="res://Assets/houses/house2/textures/Asphalt_Roofing_Green_2016.jpg" id="2_v76d6"]
-[ext_resource type="Texture2D" uid="uid://5pq8j03u24pm" path="res://Assets/250_light brown siding wood texture-seamless.jpg" id="3_mfeqp"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_p6nkg"]
-albedo_texture = ExtResource("2_v76d6")
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_utdk0"]
-albedo_texture = ExtResource("3_mfeqp")
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_c52cd"]
-albedo_texture = ExtResource("3_mfeqp")
-
-[node name="3d-model" instance=ExtResource("1_ggfsn")]
-
-[node name="roof_001" parent="." index="70"]
-material_override = SubResource("StandardMaterial3D_p6nkg")
-
-[node name="_2nd floor_001" parent="." index="71"]
-material_override = SubResource("StandardMaterial3D_utdk0")
-
-[node name="Layer0_001" parent="." index="72"]
-material_override = SubResource("StandardMaterial3D_c52cd")
+version https://git-lfs.github.com/spec/v1
+oid sha256:1c3d7b8951b4d29eb2273a7de001659556bf8475b0b1f0ea4975d3444490074b
+size 1182

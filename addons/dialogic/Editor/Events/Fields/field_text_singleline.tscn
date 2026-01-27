@@ -1,10 +1,3 @@
-[gd_scene load_steps=2 format=3 uid="uid://c0vkcehgjsjy"]
-
-[ext_resource type="Script" uid="uid://cgx1rn8km87ya" path="res://addons/dialogic/Editor/Events/Fields/field_text_singleline.gd" id="1_4vnxv"]
-
-[node name="Field_Text_Singleline" type="LineEdit"]
-offset_right = 1152.0
-offset_bottom = 81.0
-theme_type_variation = &"DialogicEventEdit"
-expand_to_text_length = true
-script = ExtResource("1_4vnxv")
+version https://git-lfs.github.com/spec/v1
+oid sha256:216b64fc7c21b6ef858e1cbfb42693bc6cb169f5aef5322576a06970920e08e7
+size 403

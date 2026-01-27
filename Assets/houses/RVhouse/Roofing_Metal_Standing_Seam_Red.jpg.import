@@ -1,34 +1,3 @@
-[remap]
-
-importer="texture"
-type="CompressedTexture2D"
-uid="uid://b0piy1r8ekx1h"
-path="res://.godot/imported/Roofing_Metal_Standing_Seam_Red.jpg-b41640fecf8d6835b06136e3fdc01b8c.ctex"
-metadata={
-"vram_texture": false
-}
-
-[deps]
-
-source_file="res://Assets/houses/RVhouse/Roofing_Metal_Standing_Seam_Red.jpg"
-dest_files=["res://.godot/imported/Roofing_Metal_Standing_Seam_Red.jpg-b41640fecf8d6835b06136e3fdc01b8c.ctex"]
-
-[params]
-
-compress/mode=0
-compress/high_quality=false
-compress/lossy_quality=0.7
-compress/hdr_compression=1
-compress/normal_map=0
-compress/channel_pack=0
-mipmaps/generate=false
-mipmaps/limit=-1
-roughness/mode=0
-roughness/src_normal=""
-process/fix_alpha_border=true
-process/premult_alpha=false
-process/normal_map_invert_y=false
-process/hdr_as_srgb=false
-process/hdr_clamp_exposure=false
-process/size_limit=0
-detect_3d/compress_to=1
+version https://git-lfs.github.com/spec/v1
+oid sha256:792c9eecca8698214a3f38043b0eb77f6c48c57ed716eebe163fdd905d3ef205
+size 849

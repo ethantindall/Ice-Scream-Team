@@ -1,4 +1,3 @@
-Copyright (c) 2020 Tim Krief.
-
-Typing sound effects by Tim Krief are licensed under a Creative 
-Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) License.
+version https://git-lfs.github.com/spec/v1
+oid sha256:977908295af53ec78317e3387bb0cd017e03f2aef330fa5952955554a95a9d6f
+size 169

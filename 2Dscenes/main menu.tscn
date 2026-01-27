@@ -1,9 +1,3 @@
-[gd_scene format=3 uid="uid://i424vk404i5p"]
-
-[node name="MainMenu" type="Control"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+version https://git-lfs.github.com/spec/v1
+oid sha256:d1c5787162608de424359bd41182362e1e485084e8720dc5a3c1f7b8a56c6e25
+size 197
