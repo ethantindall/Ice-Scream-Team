@@ -1,0 +1,16 @@
+join mom center
+join timmy center
+timmy: Hey Mom, I finished all my homework. Can I go to Mike's house now?
+mom: Great! Sure, you can go now.
+mom: Have fun, but make sure not to play any of those violent games. They'll rot your brain!
+timmy: Uh, yeah, sure mom.
+[signal arg="trigger_drive_by"]
+[wait time="8.0"]
+timmy: Hey, I hear the ice cream truck. Can I have some money for ice cream?
+mom: You're pushing your luck, mister. Not tonight.
+timmy: *sigh* Ok...
+mom: Oh, and please be back before it gets dark out.
+mom: I heard on the news there's an escaped convict on the loose. It gives me the heebie jeebies.
+timmy: You worry too much, Mom. Don't worry, I'll be back before dark!
+[signal arg="quest_3_end"]
+[end_timeline]

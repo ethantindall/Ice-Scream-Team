@@ -1,0 +1,10 @@
+join killer center
+join timmy center
+killer: Whatcha want?
+- Hi! Are you new in the neighborhood? I don't recognize you.
+	killer: Get outta here, kid. If you know what's good for you.
+	timmy: Ah, ok. Bye.
+- Sorry to bother you. Have a nice day.
+	killer: Stupid kid.
+[signal arg="killer_0_end"]
+[end_timeline]

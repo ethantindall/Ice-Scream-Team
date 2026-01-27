@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://dsu27x6qtbchg"]
+
+[ext_resource type="PackedScene" uid="uid://cc1m2a1obsyn4" path="res://addons/fpc/character.tscn" id="2_ys0t5"]
+[ext_resource type="PackedScene" uid="uid://bv08b01qy5hjs" path="res://Assets/truck3/ice_cream_truck.tscn" id="3_ys0t5"]
+
+[sub_resource type="NavigationMesh" id="NavigationMesh_8vdae"]
+vertices = PackedVector3Array(-49.5, 1, -49.5, -49.5, 1, 49.5, 49.5, 1, 49.5, 49.5, 1, -49.5)
+polygons = [PackedInt32Array(3, 2, 0), PackedInt32Array(0, 2, 1)]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_axgwx"]
+albedo_color = Color(0.303233, 0.303233, 0.303233, 1)
+
+[node name="testmap" type="Node3D"]
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
+navigation_mesh = SubResource("NavigationMesh_8vdae")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="NavigationRegion3D"]
+use_collision = true
+size = Vector3(100, 1, 100)
+material = SubResource("StandardMaterial3D_axgwx")
+
+[node name="Character" parent="." instance=ExtResource("2_ys0t5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.25263, 0.825055, 12.4791)
+
+[node name="Truck3" parent="." instance=ExtResource("3_ys0t5")]
+transform = Transform3D(-0.845476, 0, -0.534013, 0, 1, 0, 0.534013, 0, -0.845476, 2.253, 2.33132, 20.341)

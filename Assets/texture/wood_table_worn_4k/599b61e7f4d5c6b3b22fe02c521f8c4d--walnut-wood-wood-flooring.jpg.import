@@ -1,0 +1,35 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://b357tv0rel030"
+path.s3tc="res://.godot/imported/599b61e7f4d5c6b3b22fe02c521f8c4d--walnut-wood-wood-flooring.jpg-bbf8a2189190e256ad37993201f26c93.s3tc.ctex"
+metadata={
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
+}
+
+[deps]
+
+source_file="res://Assets/texture/wood_table_worn_4k/599b61e7f4d5c6b3b22fe02c521f8c4d--walnut-wood-wood-flooring.jpg"
+dest_files=["res://.godot/imported/599b61e7f4d5c6b3b22fe02c521f8c4d--walnut-wood-wood-flooring.jpg-bbf8a2189190e256ad37993201f26c93.s3tc.ctex"]
+
+[params]
+
+compress/mode=2
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=true
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=0

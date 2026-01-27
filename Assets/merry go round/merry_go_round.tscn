@@ -1,0 +1,37 @@
+[gd_scene load_steps=7 format=3 uid="uid://d0u5ucvuna32"]
+
+[ext_resource type="PackedScene" uid="uid://daksiey56dvnl" path="res://Assets/merry go round/uploads_files_4642807_MerryGoRound/Fbx/MerryGoRound.fbx" id="1_45284"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_w4bru"]
+albedo_color = Color(0.295867, 0.295866, 0.295866, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_l4qju"]
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_muv02"]
+albedo_color = Color(1, 1, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ls7oh"]
+albedo_color = Color(0, 0, 0.933333, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hi8ak"]
+albedo_color = Color(0.295867, 0.295866, 0.295866, 1)
+
+[node name="MerryGoRound" instance=ExtResource("1_45284")]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, 0)
+
+[node name="Support" parent="." index="0"]
+surface_material_override/0 = SubResource("StandardMaterial3D_w4bru")
+
+[node name="FramePt3" parent="." index="1"]
+surface_material_override/0 = SubResource("StandardMaterial3D_l4qju")
+
+[node name="FramePt2" parent="." index="2"]
+surface_material_override/0 = SubResource("StandardMaterial3D_muv02")
+
+[node name="FramePt1" parent="." index="3"]
+surface_material_override/0 = SubResource("StandardMaterial3D_ls7oh")
+
+[node name="Base" parent="." index="4"]
+transform = Transform3D(594.63, 0, 0, 0, -7.08854e-05, 594.63, 0, -594.63, -7.08854e-05, -0.00444283, 1.45306, -0.0155055)
+surface_material_override/0 = SubResource("StandardMaterial3D_hi8ak")

@@ -1,0 +1,14 @@
+join killer center
+join timmy center
+killer: Hiya, little boy. Want some ice cream?
+timmy: Mr. Ice Cream Man? What are you still doing here this late at night?
+killer: I could ask you the same question. What are you doing out here all alone?
+timmy: Oh, I was at my friend's house playing. I'm heading home now. My mom is waiting for me.
+killer: Well, I think she can wait a little longer. Come get some ice cream. It won't hurt.
+timmy: Uh, no thanks. My mom will already be mad at me for coming home late. I'd better go.
+killer: Come here, kid.
+timmy: Uh, no thanks. I gotta go.
+killer: You're not going anywhere.
+timmy: Ahhh!
+[signal arg="killer_1_end"]
+[end_timeline]

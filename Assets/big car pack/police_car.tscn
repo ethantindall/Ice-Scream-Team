@@ -1,0 +1,29 @@
+[gd_scene load_steps=6 format=3 uid="uid://qgpg6acwl4jf"]
+
+[ext_resource type="Texture2D" uid="uid://cbipelw2ccn6x" path="res://Assets/big car pack/PSX_Style_Cars_by_GGBot_(August2023)/Car 05/car5_police.png" id="1_vlcpy"]
+[ext_resource type="ArrayMesh" uid="uid://x13gmchrwsnt" path="res://Assets/big car pack/PSX_Style_Cars_by_GGBot_(August2023)/Car 05/Car5_Taxi.obj" id="2_atjvj"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xdq2i"]
+albedo_texture = ExtResource("1_vlcpy")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_nyb8w"]
+size = Vector3(2.25208, 1, 6.93784)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wsomg"]
+size = Vector3(2.25208, 1, 2.92416)
+
+[node name="Police Car" type="Node3D"]
+
+[node name="Car5Taxi" type="MeshInstance3D" parent="."]
+material_override = SubResource("StandardMaterial3D_xdq2i")
+mesh = ExtResource("2_atjvj")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22406, 0.764079, -0.0917816)
+shape = SubResource("BoxShape3D_nyb8w")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22406, 1.47756, -0.481106)
+shape = SubResource("BoxShape3D_wsomg")

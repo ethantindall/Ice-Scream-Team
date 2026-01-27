@@ -1,0 +1,10 @@
+join mikemom center
+join timmy center
+mikemom: Heading out, Timmy?
+timmy: Yeah, I gotta go or my mom will be mad at me.
+mikemom: Need a ride home?
+timmy: No, thank you. It's just a few blocks. I'll be fine.
+mikemom: Ok, be safe. It's awfully dark out there tonight.
+timmy: I will! Goodnight!
+[signal arg="mikes_house_4_end"]
+[end_timeline]

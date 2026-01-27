@@ -1,0 +1,4 @@
+join timmy center
+timmy: Hmm. Maybe I can sneak through someone's backyard instead of going all the way around the block.
+[signal arg="police_1_end"]
+[end_timeline]

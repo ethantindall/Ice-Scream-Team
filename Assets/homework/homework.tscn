@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://p2ra836pflkn"]
+
+[ext_resource type="Texture2D" uid="uid://cmq7m3b23ub0b" path="res://Assets/homework/homework.png" id="1_51qh8"]
+
+[node name="Homework" type="Sprite2D"]
+texture = ExtResource("1_51qh8")

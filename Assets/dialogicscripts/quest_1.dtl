@@ -1,0 +1,15 @@
+join timmy center
+join mom center
+timmy: Hi Mom, can I go play at Mike's house?
+mom: Sure, did you finish all your homework?
+- Uh yeah, totally.
+	mom: Are you sure? If I go upstairs and check will your homework be blank?
+	timmy: Um... ah... well.
+	mom: Timmy, don't lie to me. Remember what your dad and I said about lying?
+	mom: Listen, if you get all your homework done, you can go play at Mike's house.
+	timmy: Really? Thanks, Mom! I'll get it done right now!
+- No, not yet.
+	mom: Ok, if you finish all your homework, you can go.
+	timmy: *sigh* Ok, Mom. I'll do it.
+[signal arg="quest_1_end"]
+[end_timeline]

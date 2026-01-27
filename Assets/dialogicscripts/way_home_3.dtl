@@ -1,0 +1,16 @@
+join  center
+killer: Hiya, boyo. Want some ice cream?
+- Yes, please!
+	timmy: Oh. No, thank you. My mom is expecting me. She'll be mad I'm already so late.
+	icecreamman: Oh please, one more minute won't matter.
+- Who are you?
+	killer: Whaddaya mean "who are you"? I'm the ice cream man! Hehehe!
+	timmy: You're not the same guy I got ice cream from earlier.
+	icecreamman: His shift ended. What, you think we're out here working 24 hour shifts? Like Doctors?
+	icecreamman: He went home! I'm in charge now.
+	icecreamman: Anyway, whatdaya say? Want some ice cream?
+icecreamman: Climb on inside the truck. I'll let you pick out whatever you want for free.
+icecreamman: Come on, kid. Now.
+timmy: RUN!
+[signal arg="way_home_3"]
+[end_timeline]

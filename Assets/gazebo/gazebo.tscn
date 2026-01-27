@@ -1,0 +1,48 @@
+[gd_scene load_steps=10 format=3 uid="uid://l5msampnjjf2"]
+
+[ext_resource type="PackedScene" uid="uid://b5mvlojw1wpdc" path="res://Assets/gazebo/textures/uploads_files_2973959_oct_f_uv1.fbx" id="1_a65f6"]
+[ext_resource type="Texture2D" uid="uid://ct2f5flgvmpe6" path="res://Assets/gazebo/textures/FINAL_UV_lambert8_BaseColor.jpg" id="2_3cogx"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mtfl7"]
+albedo_texture = ExtResource("2_3cogx")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_31fvw"]
+albedo_texture = ExtResource("2_3cogx")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_j86lt"]
+albedo_texture = ExtResource("2_3cogx")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_032sl"]
+albedo_texture = ExtResource("2_3cogx")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2ocmq"]
+albedo_texture = ExtResource("2_3cogx")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1jhag"]
+albedo_texture = ExtResource("2_3cogx")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1ln46"]
+albedo_texture = ExtResource("2_3cogx")
+
+[node name="Gazebo" instance=ExtResource("1_a65f6")]
+
+[node name="topo1" parent="." index="0"]
+material_override = SubResource("StandardMaterial3D_mtfl7")
+
+[node name="estr1" parent="." index="2"]
+material_override = SubResource("StandardMaterial3D_31fvw")
+
+[node name="base1" parent="." index="3"]
+material_override = SubResource("StandardMaterial3D_j86lt")
+
+[node name="escada1" parent="." index="4"]
+material_override = SubResource("StandardMaterial3D_032sl")
+
+[node name="telhas2" parent="." index="5"]
+material_override = SubResource("StandardMaterial3D_2ocmq")
+
+[node name="edges_1" parent="." index="6"]
+material_override = SubResource("StandardMaterial3D_1jhag")
+
+[node name="protecao1" parent="." index="8"]
+material_override = SubResource("StandardMaterial3D_1ln46")

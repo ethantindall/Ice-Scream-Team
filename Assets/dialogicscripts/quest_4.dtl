@@ -1,0 +1,16 @@
+join icecreamman center
+join timmy center
+icecreamman: Hey there, kid. Want some ice cream?
+if :
+	timmy: Yes, please, Mr. Ice Cream Man. I have one dollar.
+	icecreamman: Alrighty, then. That'll get you one gumball bar.
+	timmy: What's a gumball bar?
+	icecreamman: It's an ice cream bar with gumballs on it. What else would it be?
+	timmy: Makes sense to me!
+else:
+	timmy: I do, but I don't have any money.
+	icecreamman: Ah, don't worry about it, kid. It's a hot day out and you look like you could use some ice cream.
+	icecreamman: It's on the house!
+	timmy: Gee, thanks, mister!
+[signal arg="quest_4_end"]
+[end_timeline]

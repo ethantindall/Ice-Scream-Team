@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3 uid="uid://dje1evpc3vb3s"]
+
+[ext_resource type="PackedScene" uid="uid://ctttnlp8455cl" path="res://Assets/fence/wooden_fence.tscn" id="1_jwxj1"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jwxj1"]
+size = Vector3(1, 3.71393, 12.3029)
+
+[node name="5fences" type="Node3D"]
+
+[node name="WoodenFence" parent="." instance=ExtResource("1_jwxj1")]
+
+[node name="WoodenFence2" parent="." instance=ExtResource("1_jwxj1")]
+transform = Transform3D(2, 1.67038e-22, -7.30146e-30, 0, -8.74228e-08, -2, -1.67038e-22, 2, -8.74228e-08, 2.43163, 0.925004, 0)
+
+[node name="WoodenFence3" parent="." instance=ExtResource("1_jwxj1")]
+transform = Transform3D(2, 1.67038e-22, -7.30146e-30, 0, -8.74228e-08, -2, -1.67038e-22, 2, -8.74228e-08, 4.83417, 0.925004, 0)
+
+[node name="WoodenFence4" parent="." instance=ExtResource("1_jwxj1")]
+transform = Transform3D(2, 1.67038e-22, -7.30146e-30, 0, -8.74228e-08, -2, -1.67038e-22, 2, -8.74228e-08, -2.41427, 0.925004, 0)
+
+[node name="WoodenFence5" parent="." instance=ExtResource("1_jwxj1")]
+transform = Transform3D(2, 1.67038e-22, -7.30146e-30, 0, -8.74228e-08, -2, -1.67038e-22, 2, -8.74228e-08, -4.84738, 0.925004, 0)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(-4.37114e-09, 0, 1, 0, 1, 0, -0.1, 0, -4.37114e-08, -0.0200911, 0.928314, 8.75872e-10)
+shape = SubResource("BoxShape3D_jwxj1")

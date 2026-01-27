@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://caef6naw0p8n6"
+path="res://.godot/imported/Car_Acceleration_2.ogg-f483a6cb6e770322d48798fe0e2e03b1.oggvorbisstr"
+
+[deps]
+
+source_file="res://Assets/big car pack/PSX_Style_Cars_by_GGBot_(August2023)/Sound effects/Car_Acceleration_2.ogg"
+dest_files=["res://.godot/imported/Car_Acceleration_2.ogg-f483a6cb6e770322d48798fe0e2e03b1.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

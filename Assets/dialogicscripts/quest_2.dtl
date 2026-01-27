@@ -1,0 +1,4 @@
+join timmy center
+timmy: Ok that should do it. Time to go tell Mom I'm done with my homework.
+[signal arg="quest_2_end"]
+[end_timeline]

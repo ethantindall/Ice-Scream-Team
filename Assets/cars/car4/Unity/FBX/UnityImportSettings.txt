@@ -1,0 +1,9 @@
+To import the car into Unity, simply drag the FBX file into your Unity project folder.
+
+Next, drag the texture files into the same folder as the car FBX. Unity will automatically link them if the names match.
+
+Click on the car FBX asset to open its settings in the Inspector tab on the right side of the screen.
+
+In the Model section, check the box labeled "Bake Axis Conversion" and click Apply. This ensures the car faces the correct direction.
+
+If the pivot points appear centered instead of at the door hinges or wheels, go to the Scene view. In the top-left corner, change the dropdown from "Center" to "Pivot" to view and rotate objects from their actual pivot points.  

@@ -1,0 +1,61 @@
+[gd_scene load_steps=6 format=4 uid="uid://cbk7p02v4v0re"]
+
+[ext_resource type="PackedScene" uid="uid://blk2hqgfw7uyr" path="res://Assets/plants/flowerbush.tscn" id="1_3gdqn"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ysive"]
+albedo_color = Color(0.169245, 0.169245, 0.169245, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8h3ax"]
+albedo_color = Color(0.0311577, 0.209359, 0.0299817, 1)
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_3gdqn"]
+_surfaces = [{
+"aabb": AABB(-1, -0.5, -5, 2, 1, 10),
+"attribute_data": PackedByteArray("AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/ANcjPNDMzDwAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8A1yM80MzMPAAAAAAAAAAApHB9P9DMzDwAAIA/AAAAAADXIzzQzMw8AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAAACkcH0/0MzMPKRwfT+amXk/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAAAAAAAAAAAAAAAAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8A1yM8mpl5PwDXIzzQzMw8AACAPwAAAAAAAAAAAAAAAAAAgD8AAIA/AAAAAAAAAAAAAIA/AACAPwAAgD8AAAAAAAAAAAAAAAAAAIA/AACAPwAAgD8AAAAApHB9P5qZeT8AAAAAAACAPwAAgD8AAIA/AACAPwAAAACkcH0/mpl5PwAAgD8AAIA/AAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/ANcjPJqZeT8AAAAAAACAP6RwfT+amXk/"),
+"format": 34359738391,
+"material": SubResource("StandardMaterial3D_ysive"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 54,
+"vertex_data": PackedByteArray("AACAvwAAAL8AAKBAAACAPwAAAL8AAKBAAACAPwAAAL8AAKDAMzNzPwAAAD/NzJxAAACAPwAAAD8AAKDAAACAPwAAAD8AAKBAAACAvwAAAD8AAKBAMzNzPwAAAD/NzJxAAACAPwAAAD8AAKBAMzNzPwAAAD/NzJzAAACAPwAAAD8AAKDAMzNzPwAAAD/NzJxAAACAPwAAAD8AAKBAAACAPwAAAD8AAKDAAACAPwAAAL8AAKDAAACAPwAAAD8AAKDAMzNzPwAAAD/NzJzAMzNzvwAAAD/NzJzAAACAPwAAAL8AAKDAAACAPwAAAD8AAKDAAACAvwAAAD8AAKDAAACAPwAAAL8AAKBAAACAPwAAAD8AAKBAAACAPwAAAL8AAKDAAACAPwAAAD8AAKBAAACAPwAAAL8AAKBAAACAvwAAAL8AAKBAAACAvwAAAL8AAKBAAACAvwAAAL8AAKDAAACAvwAAAD8AAKDAAACAvwAAAD8AAKBAMzNzvwAAAD/NzJxAMzNzPwAAAD/NzJxAAACAvwAAAD8AAKBAAACAPwAAAD8AAKBAAACAvwAAAL8AAKBAAACAvwAAAL8AAKBAAACAPwAAAL8AAKDAAACAvwAAAL8AAKDAAACAPwAAAL8AAKDAAACAvwAAAD8AAKDAAACAvwAAAL8AAKDAMzNzvwAAAD/NzJzAAACAvwAAAD8AAKBAAACAvwAAAD8AAKDAAACAPwAAAD8AAKDAMzNzvwAAAD/NzJzAAACAvwAAAD8AAKDAAACAvwAAAD8AAKDAAACAvwAAAD8AAKBAAACAvwAAAL8AAKBAMzNzvwAAAD/NzJxAAACAvwAAAD8AAKBAMzNzvwAAAD/NzJzA/38AAP//AAD/fwAA//8AAP9/AAD//wAA/3//////AAD/f/////8AAP9//////wAA/3//////AAD/f/////8AAP9//////wAA/3//////AAD/f/////8AAP9//////wAA////f/9//n////9//3/+f////3//f/5//3//////AAD/f/////8AAP9//////wAA/////wAA/z//////AAD/P/////8AAP8/////f/9//n////9//3/+f////3//f/5//3//fwAA/z//f/9/AAD/P/9//38AAP8/AAD/f/9//n8AAP9//3/+fwAA/3//f/5//3//////AAD/f/////8AAP9//////wAA/3//fwAA/z//f/9/AAD/P/9//38AAP8//38AAP//AAD/fwAA//8AAP9/AAD//wAA/////wAA/z//////AAD/P/////8AAP8//3//////AAD/f/////8AAP9//////wAA/3//////AAD/f/////8AAP9//////wAAAAD/f/9//n8AAP9//3/+fwAA/3//f/5//3//////AAD/f/////8AAP9//////wAA")
+}, {
+"aabb": AABB(-0.95, 0.5, -4.9, 1.9, 0.0160574, 9.8),
+"attribute_data": PackedByteArray("AACAPwAAgD8AAIA/vG57PwAAAAC8bns/AAAAALxuez8AAAAAAACAPwAAgD8AAIA/AACAPwAAAAAAAAAAAAAAAAAAgD8AAIA/AAAAAAAAAAAAAAAAAACAP4cokjwAAAAAhyiSPAAAgD+HKJI8AAAAAAAAAAAAAIA/hyiSPAAAgD+HKJI8AAAAAAAAAAAAAIA/AACAP4cokjwAAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhyiSPAAAgD+HKJI8AAAAAAAAAAAAAAAAAACAP4cokjwAAAAAAACAPwAAgD8AAAAAAAAAAAAAAAAAAIA/"),
+"format": 34359738391,
+"material": SubResource("StandardMaterial3D_8h3ax"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 30,
+"vertex_data": PackedByteArray("MzNzv1ccBD/NzJzAMzNzvwAAAD/NzJzAMzNzPwAAAD/NzJzAMzNzPwAAAD/NzJzAMzNzP1ccBD/NzJzAMzNzv1ccBD/NzJzAMzNzP1ccBD/NzJzAMzNzP1ccBD/NzJxAMzNzv1ccBD/NzJzAMzNzv1ccBD/NzJzAMzNzv1ccBD/NzJxAMzNzvwAAAD/NzJzAMzNzvwAAAD/NzJxAMzNzvwAAAD/NzJzAMzNzv1ccBD/NzJxAMzNzPwAAAD/NzJzAMzNzPwAAAD/NzJxAMzNzP1ccBD/NzJzAMzNzvwAAAD/NzJxAMzNzv1ccBD/NzJxAMzNzP1ccBD/NzJxAMzNzP1ccBD/NzJxAMzNzPwAAAD/NzJxAMzNzvwAAAD/NzJxAMzNzP1ccBD/NzJxAMzNzP1ccBD/NzJzAMzNzPwAAAD/NzJxAMzNzv1ccBD/NzJzAMzNzP1ccBD/NzJxAMzNzv1ccBD/NzJxA/////wAA/z//////AAD/P/////8AAP8//////wAA/z//////AAD/P/////8AAP8//3//////AAD/f/////8AAP9//////wAAAAD/f/9//n8AAP9//3/+fwAA/3//f/5/AAD/f/9//n8AAP9//3/+fwAA/3//f/5/////f/9//n////9//3/+f////3//f/5//3//fwAA/z//f/9/AAD/P/9//38AAP8//3//fwAA/z//f/9/AAD/P/9//38AAP8/////f/9//n////9//3/+f////3//f/5//3//////AAD/f/////8AAP9//////wAA")
+}]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_ysive"]
+data = PackedVector3Array(-1, -0.5, 5, 1, -0.5, 5, 1, -0.5, -5, 0.95, 0.5, 4.9, 1, 0.5, -5, 1, 0.5, 5, -1, 0.5, 5, 0.95, 0.5, 4.9, 1, 0.5, 5, 0.95, 0.5, -4.9, 1, 0.5, -5, 0.95, 0.5, 4.9, 1, 0.5, 5, 1, 0.5, -5, 1, -0.5, -5, 1, 0.5, -5, 0.95, 0.5, -4.9, -0.95, 0.5, -4.9, 1, -0.5, -5, 1, 0.5, -5, -1, 0.5, -5, 1, -0.5, 5, 1, 0.5, 5, 1, -0.5, -5, 1, 0.5, 5, 1, -0.5, 5, -1, -0.5, 5, -1, -0.5, 5, -1, -0.5, -5, -1, 0.5, -5, -1, 0.5, 5, -0.95, 0.5, 4.9, 0.95, 0.5, 4.9, -1, 0.5, 5, 1, 0.5, 5, -1, -0.5, 5, -1, -0.5, 5, 1, -0.5, -5, -1, -0.5, -5, 1, -0.5, -5, -1, 0.5, -5, -1, -0.5, -5, -0.95, 0.5, -4.9, -1, 0.5, 5, -1, 0.5, -5, 1, 0.5, -5, -0.95, 0.5, -4.9, -1, 0.5, -5, -1, 0.5, -5, -1, 0.5, 5, -1, -0.5, 5, -0.95, 0.5, 4.9, -1, 0.5, 5, -0.95, 0.5, -4.9, -0.95, 0.516057, -4.9, -0.95, 0.5, -4.9, 0.95, 0.5, -4.9, 0.95, 0.5, -4.9, 0.95, 0.516057, -4.9, -0.95, 0.516057, -4.9, 0.95, 0.516057, -4.9, 0.95, 0.516057, 4.9, -0.95, 0.516057, -4.9, -0.95, 0.516057, -4.9, -0.95, 0.516057, 4.9, -0.95, 0.5, -4.9, -0.95, 0.5, 4.9, -0.95, 0.5, -4.9, -0.95, 0.516057, 4.9, 0.95, 0.5, -4.9, 0.95, 0.5, 4.9, 0.95, 0.516057, -4.9, -0.95, 0.5, 4.9, -0.95, 0.516057, 4.9, 0.95, 0.516057, 4.9, 0.95, 0.516057, 4.9, 0.95, 0.5, 4.9, -0.95, 0.5, 4.9, 0.95, 0.516057, 4.9, 0.95, 0.516057, -4.9, 0.95, 0.5, 4.9, -0.95, 0.516057, -4.9, 0.95, 0.516057, 4.9, -0.95, 0.516057, 4.9)
+
+[node name="Median" type="Node3D"]
+
+[node name="CSGBakedMeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("ArrayMesh_3gdqn")
+
+[node name="flowerbush" parent="." instance=ExtResource("1_3gdqn")]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -0.0248428, 0.16366, 3.89549)
+
+[node name="flowerbush2" parent="." instance=ExtResource("1_3gdqn")]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -0.0248428, 0.16366, 2.49717)
+
+[node name="flowerbush3" parent="." instance=ExtResource("1_3gdqn")]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -0.0248428, 0.16366, 0.763803)
+
+[node name="flowerbush4" parent="." instance=ExtResource("1_3gdqn")]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -0.0248428, 0.16366, -0.88897)
+
+[node name="flowerbush5" parent="." instance=ExtResource("1_3gdqn")]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -0.0248428, 0.16366, -2.42957)
+
+[node name="flowerbush6" parent="." instance=ExtResource("1_3gdqn")]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -0.0248428, 0.16366, -4.02016)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CSGBakedCollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_ysive")

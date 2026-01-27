@@ -1,0 +1,7 @@
+join timmy center
+timmy: It's finally Friday! I should go ask Mom if I can go play at Mike's house.
+timmy: He's got the new Big Vehicle Larceny 6 on his GameStation and I want to play it so bad!
+timmy: I can't tell Mom that though. She'll say Mike is a bad example and that game is too violent.
+timmy: Mom's so lame. She just doesn't get it.
+[signal arg="quest_0_end"]
+[end_timeline]

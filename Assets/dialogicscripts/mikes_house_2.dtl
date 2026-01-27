@@ -1,0 +1,15 @@
+join timmy center
+join mike center
+timmy: Hey, Mike!
+mike: Hey, Timmy. Glad you could make it. Check out this new game I got.
+timmy: Big Vehicle Larceny 6. Man, I've been waiting for this game my whole life.
+mike: You're only twelve...
+timmy: Twelve years is a long time!
+timmy: It's my turn when you die, OK?
+mike: Well, actually, my mom made me return BVL... She said it was too violent.
+timmy: What?? This is horrible news!
+mike: It's ok. We can still play Space Defenders.
+timmy: *sniff* Ok... I guess that's fine.
+mike: Ok, deal. Take a seat and lets play!
+[signal arg="mikes_house_2_end"]
+[end_timeline]

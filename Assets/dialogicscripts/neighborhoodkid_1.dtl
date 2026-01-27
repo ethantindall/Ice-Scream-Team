@@ -1,0 +1,8 @@
+join neighborhoodkid center
+join timmy center
+neighborhoodkid: Hey, Timmy. Want to play with us?
+timmy: Sorry, I can't today. I'm going to Mike's house to play Big Vehicle Larceny 6!
+neighborhoodkid: What? Lucky. My mom would never let me play something like that. Your mom must be so cool.
+timmy: Yeah, she's totally cool. See ya!
+[signal arg="neighborhoodkid_1_end"]
+[end_timeline]

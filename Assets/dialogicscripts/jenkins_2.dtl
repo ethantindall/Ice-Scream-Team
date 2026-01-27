@@ -1,0 +1,13 @@
+join mrsJenkins center
+join timmy center
+mrsJenkins: Young man. Did I just see you come out of my back yard?
+mrsJenkins: You better not have disturbed my husband's exercise routine.
+mrsJenkins: It is of the utmost importance that he devote his full attention to his afternoon exercises. Doctor's orders.
+- Oh boy, have I got news for you.
+	timmy: Mr. Jenkins hurt his back! He said he needs your help right now!
+	mrsJenkins: Oh, bother. I'd better attend to him right away.
+- Mr. Jenkins has fallen and he can't get up!
+	mrsJenkins: That foolish old man. He wiggles his hips a little bit and thinks he's 20 again. He'll be the death of me yet.
+- Yes, ma'am. Have a great day.
+[signal arg="jenkins_2_end"]
+[end_timeline]

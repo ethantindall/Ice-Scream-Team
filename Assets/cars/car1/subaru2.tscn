@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3 uid="uid://4jh6hx3uv883"]
+
+[ext_resource type="ArrayMesh" uid="uid://7dn045apvnsl" path="res://Assets/big car pack/PSX_Style_Cars_by_GGBot_(August2023)/Car 05/Car5.obj" id="1_xllkh"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_in0do"]
+size = Vector3(0.0325165, 0.0166133, 0.0863037)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_nmscp"]
+size = Vector3(0.028347, 0.015274, 0.0380402)
+
+[node name="Subaru" type="Node3D"]
+transform = Transform3D(80, 0, 0, 0, 80, 0, 0, 0, 80, 0, 0, 0)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00263241, 0.00651355, -0.000323894)
+shape = SubResource("BoxShape3D_in0do")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(0.999994, -0.00331612, 0, 0.00331612, 0.999994, 0, 0, 0, 1, 0.00272254, 0.0203131, -0.00430784)
+shape = SubResource("BoxShape3D_nmscp")
+
+[node name="Car5" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.0125, 0, 0, 0, 0.0125, 0, 0, 0, 0.0125, 0.00347697, 0, 0.00104862)
+mesh = ExtResource("1_xllkh")

@@ -1,0 +1,17 @@
+join oldmanjenkins center
+join timmy center
+oldmanjenkins: Oh, what are you doing here?
+timmy: Sorry for intruding, Mr. Jenkins. There was a car crash and the police wouldn't let me down the road!
+oldmanjenkins: Ah, I wondered what that sound was. I would have investigated, but I didn't have time to stop.
+oldmanjenkins: The groove waits for no man! How do I look? Groovy, right?
+- Totally groovy, Mr. Jenkins
+	oldmanjenkins: Oh yeah. Feeling groovy.
+	oldmanjenkins: Ever since I started doing this dance routine every day, I feel like a youngster again!
+	oldmanjenkins: I can dance all day!
+	timmy: Uh, sure Mr. Jenkins!
+- You look like a medical emergency waiting to happen.
+	oldmanjenkins: No need to be snarky, young man. I'll have you know--
+oldmanjenkins: Oh, ouch. There goes my back. I'm going to have to lay down.
+oldmanjenkins: If you see my wife can you let her know I am immobilized with crippling pain?
+[signal arg="jenkins_1_end"]
+[end_timeline]

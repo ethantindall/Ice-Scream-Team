@@ -1,0 +1,21 @@
+join timmy center
+join mrboone center
+timmy: Hey, Mr. Boone! How's it going!
+mrboone: Hey, what's up Timmy?
+timmy: I'm going to my friend Mike's house. We're going to play video games.
+timmy: But don't tell my mom. She says they rot my brain.
+mrboone: Hehe, you got it, kid.
+- This is a nice car you got, Mr. Boone.
+	mrboone: Yeah, this here puppy's my pride and joy. I've put a lot of blood, sweat, and tears into 'er.
+	mrboone: Well, I better get back to work. Have a good one, Timmy.
+- Hey can I have a dollar?
+	mrboone: What do you need a dollar for?
+	timmy: I heard the ice cream truck earlier. I want to get some ice cream.
+	mrboone: Let me guess, you asked your mom and she said no?
+	timmy: Well...
+	mrboone: Well, I probably shouldn't help you rot your teeth, but I just so happen to have a dollar in my pocket. It's your lucky day.
+	timmy: Gee, thanks Mr. Boone!
+	mrboone: Just don't throw me under the bus when your mom asks where those cavities came from.
+	mrboone: Better go catch that ice cream truck, then!
+[signal arg="boone_1_end"]
+[end_timeline]

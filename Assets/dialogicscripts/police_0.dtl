@@ -1,0 +1,8 @@
+join police center
+police: Sorry, young man. There's been an accident. I can't let you any closer.
+- Well, how am I going to get to my friends house?
+- Woah! Did anyone die?
+	police: Um, no. It was just a fender bender.
+police: Sorry. You'll have to find another way around.
+[signal arg="police_0_end"]
+[end_timeline]

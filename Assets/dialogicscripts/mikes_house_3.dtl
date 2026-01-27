@@ -1,0 +1,11 @@
+join timmy center
+join mike center
+timmy: Oh, no!
+mike: What's wrong?
+timmy: It's dark out! My mom said she wanted me to be home before dark.
+mike: Oh, is that all? You scared me for a minute there.
+timmy: Thanks for letting me play your game. I'd better get going home.
+mike: Alright. See you tomorrow?
+timmy: See you tomrrow.
+[signal arg="mikes_house_3"]
+[end_timeline]

@@ -1,0 +1,7 @@
+join mikemom center
+join timmy center
+mikemom: Oh hey, Timmy. What's up? You looking for Mike?
+timmy: Hi Mike's Mom. Yes. Is he home?
+mikemom: Yeah, he's in his room playing games. Come on in.
+[signal arg="mikes_house_1_end"]
+[end_timeline]
