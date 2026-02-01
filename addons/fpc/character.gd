@@ -1,224 +1,181 @@
 extends CharacterBody3D
 
+# --- ENUMS ---
+enum PlayerState { NORMAL, SPRINTING, CROUCHING, DRAGGED, DIALOG }
+
 # --- CONFIG ---
-var immobile: bool = false
-var PAUSE: String = "ui_cancel"
+@export var base_speed: float = 6
+@export var sprint_speed: float = 10
+@export var acceleration: float = 10.0
+@export var jump_velocity: float = 4.5
+@export var mouse_sensitivity: float = 0.1
+@export var drag_look_limit := 30.0
 
-var base_speed: float = 6
-var sprint_speed: float = 10
-var crouch_speed: float = 1.0
-var acceleration: float = 10.0
-var jump_velocity: float = 4.5
-var mouse_sensitivity: float = 0.1
-var air_control: float = 0.35
-var motion_smoothing: bool = false
-
-# --- STEP CLIMB CONFIG ---
-var max_step_height: float = 0.25 # Slightly higher than 0.2 for better reliability
-var step_check_dist: float = 0.4
+var CAM_STAND_HEIGHT := 1.4
+var COLLISION_STAND_HEIGHT := 1.4
+var COLLISION_CROUCH_HEIGHT := 1.0
 
 # --- STATE ---
-var speed: float = base_speed
-var current_speed: float = 0.0
-var state: String = "normal" 
-var was_on_floor: bool = true
-var is_crouching: bool = false
-var sprint_enabled: bool = true
-var just_jumped: bool = false
+var current_state: PlayerState = PlayerState.NORMAL
+var immobile: bool = false
+var is_dragging: bool = false: 
+	set(v): 
+		is_dragging = v
+		if v: 
+			current_state = PlayerState.DRAGGED
+		else:
+			current_state = PlayerState.NORMAL
+			# Ensure camera returns to normal when drag ends
+			if CAMERA: 
+				CAMERA.position.y = CAM_STAND_HEIGHT
+				CAMERA.rotation_degrees.y = 0
 
-# --- CAMERA / COLLISION ---
-var CAM_STAND_HEIGHT := 1.8
-var CAM_CROUCH_HEIGHT := 1.6
-var CAM_SPRINT_Z := -0.2
-var CAM_CROUCH_Z := -0.3
-var COLLISION_STAND_HEIGHT := 1.8
-var COLLISION_CROUCH_HEIGHT := 1.4
-var cam_lerp_speed := 10.0
-var camera_base_z: float = 0.0 
+# --- STEP CLIMB CONFIG ---
+var max_step_height: float = 0.25 
+var min_step_height: float = 0.05 
+var step_check_dist: float = 0.4 
 
 # --- MISC ---
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
-var force_look: bool = false
+var force_look: bool = false:
+	set(v):
+		force_look = v
+		current_state = PlayerState.DIALOG if v else PlayerState.NORMAL
+
 var forced_look_target: Vector3
 var forced_look_speed: float = 3.0
+var PAUSE: String = "ui_cancel"
 
 # --- NODES ---
 @onready var CAMERA: Camera3D = $Camera
 @onready var COLLISION_MESH: CollisionShape3D = $Collision
 @onready var ANIMATIONPLAYER: AnimationPlayer = $AnimationPlayer
 
-
-var is_hidden: bool = false
-
-
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	camera_base_z = CAMERA.transform.origin.z
-	
-	# IMPROVEMENT: Ensure Floor Snap is active in the Inspector
-	apply_floor_snap() 
+	CAMERA.transform.origin.y = CAM_STAND_HEIGHT 
+	floor_snap_length = 0.2
 
 func _physics_process(delta):
-	if immobile:
-		velocity.x = lerp(velocity.x, 0.0, acceleration * delta)
-		velocity.z = lerp(velocity.z, 0.0, acceleration * delta)
-		if not is_on_floor():
-			velocity.y -= gravity * delta
-		move_and_slide()
-		update_animations(Vector3.ZERO)
-		if force_look: _update_forced_look(delta)
-		return 
+	match current_state:
+		PlayerState.DRAGGED:
+			_handle_dragged_physics(delta)
+			return
+		PlayerState.DIALOG:
+			_handle_dialog_physics(delta)
+			return
 
-	current_speed = get_real_velocity().length()
-	
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	
 	handle_jumping()
 
 	var input_dir = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-	handle_movement(delta, input_dir)
-	handle_state(input_dir.length() > 0)
-
+	var direction = (global_transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	
+	handle_movement(delta, direction)
+	handle_state_logic(input_dir.length() > 0)
 	update_camera_fov()
+	update_animations(direction)
 
-	if not was_on_floor and is_on_floor():
-		just_jumped = false
-	elif was_on_floor and not is_on_floor():
-		just_jumped = true
+func _handle_dragged_physics(delta):
+	velocity = Vector3.ZERO
+	move_and_slide()
 
-	was_on_floor = is_on_floor()
+func _handle_dialog_physics(delta):
+	var dir = global_position.direction_to(forced_look_target)
+	var target_yaw = atan2(-dir.x, -dir.z)
+	rotation.y = lerp_angle(rotation.y, target_yaw, forced_look_speed * delta)
+	velocity.x = lerp(velocity.x, 0.0, acceleration * delta)
+	velocity.z = lerp(velocity.z, 0.0, acceleration * delta)
+	move_and_slide()
 
-	var move_dir = global_transform.basis * Vector3(input_dir.x, 0, input_dir.y)
-	move_dir.y = 0
-	update_animations(move_dir.normalized())
+func _unhandled_input(event):
+	if event.is_action_pressed(PAUSE):
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else Input.MOUSE_MODE_CAPTURED
+
+	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		if current_state == PlayerState.DRAGGED:
+			CAMERA.rotation_degrees.y = clamp(CAMERA.rotation_degrees.y - event.relative.x * mouse_sensitivity, -drag_look_limit, drag_look_limit)
+			var pitch = CAMERA.rotation_degrees.x - event.relative.y * mouse_sensitivity
+			CAMERA.rotation_degrees.x = clamp(pitch, -110, -70)
+		else:
+			rotation_degrees.y -= event.relative.x * mouse_sensitivity
+			CAMERA.rotation_degrees.x = clamp(CAMERA.rotation_degrees.x - event.relative.y * mouse_sensitivity, -60, 90)
+
+func handle_movement(delta, direction: Vector3):
+	var speed = base_speed
+	if current_state == PlayerState.SPRINTING: speed = sprint_speed
+	elif current_state == PlayerState.CROUCHING: speed = base_speed * 0.4
+	
+	var target_velocity = direction * speed
+	if is_on_floor():
+		if direction.length() > 0: _check_step_climb(direction)
+		velocity.x = target_velocity.x
+		velocity.z = target_velocity.z
+	else:
+		velocity.x = lerp(velocity.x, target_velocity.x, 0.35)
+		velocity.z = lerp(velocity.z, target_velocity.z, 0.35)
+	move_and_slide()
+
+func handle_state_logic(moving: bool):
+	if current_state == PlayerState.DRAGGED or current_state == PlayerState.DIALOG:
+		return
+
+	if Input.is_action_pressed("ui_crouch"):
+		if current_state != PlayerState.CROUCHING: set_crouch_logic(true)
+	elif current_state == PlayerState.CROUCHING:
+		set_crouch_logic(false)
+	
+	if current_state != PlayerState.CROUCHING and moving and Input.is_action_pressed("ui_sprint"):
+		current_state = PlayerState.SPRINTING
+	elif current_state == PlayerState.SPRINTING:
+		current_state = PlayerState.NORMAL
+
+func set_crouch_logic(active: bool):
+	current_state = PlayerState.CROUCHING if active else PlayerState.NORMAL
+	var target_cam_height = 0.8 if active else CAM_STAND_HEIGHT 
+	var target_h = COLLISION_CROUCH_HEIGHT if active else COLLISION_STAND_HEIGHT
+	
+	var tween = create_tween().set_parallel(true)
+	tween.tween_property(CAMERA, "position:y", target_cam_height, 0.15)
+	var capsule = COLLISION_MESH.shape as CapsuleShape3D
+	if capsule:
+		tween.tween_property(capsule, "height", target_h, 0.15)
+		tween.tween_property(COLLISION_MESH, "position:y", target_h / 2.0, 0.15)
+
+func update_animations(direction: Vector3):
+	if not ANIMATIONPLAYER: return
+	if direction.length() > 0:
+		match current_state:
+			PlayerState.NORMAL: ANIMATIONPLAYER.play("Walk")
+			PlayerState.SPRINTING: ANIMATIONPLAYER.play("Running")
+			PlayerState.CROUCHING: ANIMATIONPLAYER.play("CrouchWalk")
+	else:
+		match current_state:
+			PlayerState.CROUCHING: ANIMATIONPLAYER.play("CrouchIdle")
+			_: ANIMATIONPLAYER.play("idle3")
+
+func update_camera_fov():
+	var target_fov = 65.0 if current_state == PlayerState.SPRINTING else 55.0
+	CAMERA.fov = lerp(CAMERA.fov, target_fov, 0.1)
 
 func handle_jumping():
-	if Input.is_action_pressed("ui_jump") and is_on_floor() and state != "crouching":
+	if Input.is_action_pressed("ui_jump") and is_on_floor() and current_state != PlayerState.CROUCHING:
 		velocity.y = jump_velocity
-		# Disable snapping temporarily so we can actually leave the ground
-		floor_snap_length = 0.0 
+		floor_snap_length = 0.0
 	else:
-		# Set snap length back to your max step height
-		floor_snap_length = max_step_height
-
-func handle_movement(delta, input_dir: Vector2):
-	var direction = (global_transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-	var target_velocity = direction * speed
-
-	if is_on_floor():
-		# --- ROBUST STEP CLIMBING ---
-		if direction.length() > 0:
-			_check_step_climb(direction)
-
-		if motion_smoothing:
-			velocity.x = lerp(velocity.x, target_velocity.x, acceleration * delta)
-			velocity.z = lerp(velocity.z, target_velocity.z, acceleration * delta)
-		else:
-			velocity.x = target_velocity.x
-			velocity.z = target_velocity.z
-	else:
-		velocity.x = lerp(velocity.x, target_velocity.x, air_control)
-		velocity.z = lerp(velocity.z, target_velocity.z, air_control)
-
-	move_and_slide()
+		floor_snap_length = 0.2
 
 func _check_step_climb(direction: Vector3):
 	var space_state = get_world_3d().direct_space_state
-	
-	# We use a RayQuery but with a thicker margin via 'motion' or multiple offsets
-	# For simplicity and reliability, we check 3 points: Center, Left, and Right
-	var lateral_offset = global_transform.basis.x * 0.2
-	var check_points = [
-		Vector3.ZERO,
-		lateral_offset,
-		-lateral_offset
-	]
-	
-	for offset in check_points:
-		var ray_start = global_position + offset + (direction * step_check_dist) + Vector3(0, max_step_height, 0)
-		var ray_end = ray_start + Vector3(0, -max_step_height * 1.2, 0)
-		
-		var query = PhysicsRayQueryParameters3D.create(ray_start, ray_end)
-		query.exclude = [get_rid()]
-		var result = space_state.intersect_ray(query)
-
-		if result:
-			var step_height = result.position.y - global_position.y
-			if step_height > 0.02 and step_height <= max_step_height:
-				# Check if there is head-room before snapping up
-				# (Prevents getting stuck in low ceilings)
-				global_position.y += step_height
-				return # Exit once one point finds a valid step
-
-func handle_state(moving: bool):
-	if Input.is_action_pressed("ui_crouch"):
-		if not is_crouching: set_crouch(true)
-	elif is_crouching:
-		set_crouch(false)
-
-	if sprint_enabled and not is_crouching and moving:
-		if Input.is_action_pressed("ui_sprint"):
-			if state != "sprinting": enter_sprint_state()
-		elif state == "sprinting": enter_normal_state()
-	elif state == "sprinting":
-		enter_normal_state()
-
-func enter_normal_state():
-	state = "normal"
-	speed = base_speed
-	var tween = get_tree().create_tween()
-	tween.tween_property(CAMERA, "transform:origin:z", camera_base_z, 0.15)
-	if ANIMATIONPLAYER: ANIMATIONPLAYER.play("idle3")
-
-func enter_sprint_state():
-	state = "sprinting"
-	speed = sprint_speed
-	var tween = get_tree().create_tween()
-	tween.tween_property(CAMERA, "transform:origin:z", camera_base_z + CAM_SPRINT_Z, 0.15)
-
-func update_animations(direction: Vector3):
-	if not ANIMATIONPLAYER or just_jumped: return
-	if direction.length() > 0:
-		match state:
-			"normal": ANIMATIONPLAYER.play("Walk")
-			"sprinting": ANIMATIONPLAYER.play("Running")
-			"crouching": ANIMATIONPLAYER.play("CrouchWalk")
-	else:
-		match state:
-			"normal", "sprinting": ANIMATIONPLAYER.play("idle3")
-			"crouching": ANIMATIONPLAYER.play("CrouchIdle")
-
-func _process(delta):
-	if force_look: _update_forced_look(delta)
-	if Input.is_action_just_pressed(PAUSE):
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else Input.MOUSE_MODE_CAPTURED
-
-func _update_forced_look(delta):
-	if not forced_look_target: return
-	var target_transform = CAMERA.global_transform.looking_at(forced_look_target, Vector3.UP)
-	var target_rotation = target_transform.basis.get_euler()
-	rotation.y = lerp_angle(rotation.y, target_rotation.y, forced_look_speed * delta)
-	CAMERA.rotation.x = lerp_angle(CAMERA.rotation.x, target_rotation.x, forced_look_speed * delta)
-
-func set_crouch(value: bool):
-	is_crouching = value
-	state = "crouching" if is_crouching else "normal"
-	var target_cam_height = CAM_CROUCH_HEIGHT if is_crouching else CAM_STAND_HEIGHT
-	var target_collision_height = COLLISION_CROUCH_HEIGHT if is_crouching else COLLISION_STAND_HEIGHT
-
-	var tween = get_tree().create_tween()
-	tween.tween_property(CAMERA, "transform:origin:y", target_cam_height, 0.15)
-
-	var capsule = COLLISION_MESH.shape as CapsuleShape3D
-	if capsule:
-		capsule.height = target_collision_height
-
-func update_camera_fov():
-	CAMERA.fov = lerp(CAMERA.fov, 65.0 if state == "sprinting" else 55.0, 0.3)
-
-func _unhandled_input(event):
-	if immobile or force_look: return
-	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		rotation_degrees.y -= event.relative.x * mouse_sensitivity
-		CAMERA.rotation_degrees.x = clamp(CAMERA.rotation_degrees.x - event.relative.y * mouse_sensitivity, -60, 90)
+	var ray_start = global_position + (direction * step_check_dist) + Vector3(0, max_step_height, 0)
+	var ray_end = ray_start + Vector3(0, -max_step_height * 1.5, 0)
+	var query = PhysicsRayQueryParameters3D.create(ray_start, ray_end)
+	query.exclude = [get_rid()]
+	var result = space_state.intersect_ray(query)
+	if result:
+		var step_height = result.position.y - global_position.y
+		if step_height > min_step_height and step_height <= max_step_height:
+			global_position.y += step_height + 0.02
+			global_position += direction * 0.05

@@ -25,7 +25,7 @@ extends Node3D
 @export var idle_animation := "animations/idle3"
 
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
-@onready var npc_face: Marker3D = $Marker3D
+@onready var npc_face: Marker3D = $FaceMarker
 
 var _player_ref: CharacterBody3D
 var _original_yaw := 0.0

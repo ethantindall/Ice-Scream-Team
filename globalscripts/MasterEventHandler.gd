@@ -35,8 +35,8 @@ func _ready() -> void:
 	# 1. Connect to Dialogic's signal system to listen for events inside timelines
 	Dialogic.signal_event.connect(_on_dialogic_signal)
 	
-	await get_tree().create_timer(3.0).timeout
-	DialogicHandler.run("quest_0")
+	#await get_tree().create_timer(3.0).timeout
+	#DialogicHandler.run("quest_0")
 	
 	
 
@@ -141,7 +141,18 @@ func _on_dialogic_signal(argument: String) -> void:
 			_trigger_drive_by2("IceCreamTruck-Night-1", false, false, true, 6.0, true)
 
 			DialogicHandler.run("demo_done")
+
+
+
+		"caught":
+			# Player has been caught by the bad guy
+			# Freeze player movement and trigger animation of player being drug to truck
+			if player:
+				player.immobile = true
 			
+
+
+
 # --- Helper Functions ---
 
 func _trigger_world_event(event_name: String) -> void:
@@ -178,8 +189,8 @@ func _trigger_drive_by(truckname) -> void:
 		player.immobile = true
 		player.force_look = true
 		
-		# 3. Handle 75-degree look offset
-		var marker = trucknode.find_child("Marker3D", true, false)
+		# 3. Look at truck as it approaches
+		var marker = trucknode.find_child("TruckMarker", true, false)
 		if marker:
 			var dir_to_truck = marker.global_position - player.global_position
 			var rotated_direction = dir_to_truck.rotated(Vector3.UP, deg_to_rad(0))
@@ -190,7 +201,7 @@ func _trigger_drive_by(truckname) -> void:
 
 		await get_tree().create_timer(6.5).timeout
 		
-		# 4. Return to original view (matching the 75-degree offset)
+		# 4. Return to original view 
 		var dir_to_original = original_forward_point - player.global_position
 		var rotated_original = dir_to_original.rotated(Vector3.UP, deg_to_rad(0))
 		player.forced_look_target = player.global_position + rotated_original
