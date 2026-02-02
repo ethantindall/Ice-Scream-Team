@@ -18,6 +18,7 @@ var COLLISION_CROUCH_HEIGHT := 1.0
 # --- STATE ---
 var current_state: PlayerState = PlayerState.NORMAL
 var immobile: bool = false
+var is_hidden: bool = false
 var is_dragging: bool = false: 
 	set(v): 
 		is_dragging = v

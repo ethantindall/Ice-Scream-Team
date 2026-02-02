@@ -6,6 +6,7 @@ extends Node
 var max_fps: int = 120
 var vsync_enabled: bool = true
 
+
 # =====================
 # CAMERA SETTINGS
 # =====================
