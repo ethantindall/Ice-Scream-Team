@@ -76,19 +76,30 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 func _process_vision_logic() -> void:
-	if is_dragging: return
+    if is_dragging: return
 
-	var can_see_now = _perform_vision_check()
-	
-	if can_see_now:
-		last_known_position = player.global_position
-		player_spotted = true
-		is_searching = false
-		is_waiting = false # Interrupt the wait if spotted again
-	else:
-		if player_spotted:
-			player_spotted = false
-			is_searching = true
+    var can_see_now = _perform_vision_check()
+    
+    if can_see_now:
+        last_known_position = player.global_position
+        player_spotted = true
+        is_searching = false
+        is_waiting = false 
+    else:
+        # If we lost sight, but the player is NOT idle, keep searching
+        if player_spotted:
+            player_spotted = false
+            is_searching = true
+        
+        # KEY CHANGE: If we are searching, check if we should stop based on player state
+        if is_searching:
+            # Assuming your Player script has a 'current_state' or 'state' enum
+            # Replace 'State.IDLE' with the actual path to your player's Idle state
+            if player.current_state == player.State.IDLE:
+                # Optional: Only stop searching if we also reached the last known position
+                if navigation_agent_3d.is_navigation_finished():
+                    is_searching = false
+                    is_waiting = true # Transition to the wait/look-around timer
 
 func _perform_vision_check() -> bool:
 	if not eye_cast or not player: return false
@@ -132,12 +143,24 @@ func _handle_logic(delta: float) -> void:
 			print("NPC: Arrived at last known spot. Searching...")
 	
 	elif is_waiting:
-		stop_moving()
-		wait_timer += delta
-		if wait_timer >= search_wait_time:
-			is_waiting = false
-			current_state = State.IDLE
-			print("NPC: Player gone. Returning to idle.")
+			stop_moving()
+			
+			# Continue to look for the player even while standing still
+			if _perform_vision_check():
+				is_waiting = false
+				player_spotted = true
+				return # Immediately jump back to pursuit
+
+			wait_timer += delta
+			if wait_timer >= search_wait_time:
+				# Final check: is the player still out there moving?
+				if player.current_state != player.State.IDLE:
+					# Keep waiting or return to search if player is still making noise/moving
+					wait_timer = 0.0 
+				else:
+					is_waiting = false
+					current_state = State.IDLE
+					print("NPC: Player is quiet and hidden. Returning to idle.")
 			
 
 	else:
