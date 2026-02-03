@@ -22,7 +22,7 @@ enum PlayerState {
 const CAM_STAND_HEIGHT := 1.4
 const COLLISION_STAND_HEIGHT := 1.4
 const COLLISION_CROUCH_HEIGHT := 1.0
-
+var is_hidden := false
 # --- STATE ---
 var current_state: PlayerState = PlayerState.IDLE
 
@@ -33,9 +33,16 @@ var is_dragging: bool:
 	set(v):
 		_is_dragging = v
 		current_state = PlayerState.DRAGGED if v else PlayerState.IDLE
+
+		# Reset camera when released
 		if not v and CAMERA:
 			CAMERA.position.y = CAM_STAND_HEIGHT
 			CAMERA.rotation_degrees.y = 0.0
+
+		# --- DISABLE/ENABLE PLAYER RAYCAST ---
+		if $Camera/RayCast3D:
+			$Camera/RayCast3D.enabled = not v
+
 
 var _force_look := false
 var force_look: bool:

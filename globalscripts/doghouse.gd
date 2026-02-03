@@ -11,8 +11,8 @@ extends Node3D
 var pitch = 0.0
 var yaw = 0.0
 var base_rotation = Vector3.ZERO
-var player: CharacterBody3D = null
-var is_hidden = false
+@onready var player: CharacterBody3D = get_tree().get_first_node_in_group("player") as CharacterBody3D
+
 var camera_center_position: Vector3
 var camera_target_offset: float = 0.0    # current lateral offset
 var camera_forward_offset: float = 0.0   # current forward/back offset
@@ -22,7 +22,6 @@ func get_display_text():
 
 func hide_enter():
 	# --- Find player ---
-	player = get_tree().get_first_node_in_group("player") as CharacterBody3D
 	if not player:
 		push_warning("Player not found")
 		return
@@ -43,10 +42,10 @@ func hide_enter():
 	else:
 		push_warning("Doghouse Camera3D not found")
 	
-	is_hidden = true
+	player.is_hidden = true
 
 func _physics_process(delta):
-	if is_hidden and $Camera3D:
+	if player.is_hidden and $Camera3D:
 		# --- Lateral peek (left/right) ---
 		if Input.is_action_pressed("ui_left"):
 			camera_target_offset = clamp(camera_target_offset - peek_speed * delta, -peek_distance, peek_distance)
@@ -79,7 +78,7 @@ func _physics_process(delta):
 		$Camera3D.global_transform.origin = new_pos
 
 func _unhandled_input(event):
-	if is_hidden and $Camera3D.is_current():
+	if player.is_hidden and $Camera3D.is_current():
 		# --- Mouse pan ---
 		if event is InputEventMouseMotion:
 			yaw -= event.relative.x * mouse_sensitivity
@@ -127,7 +126,7 @@ func hide_exit():
 		push_warning("Player CAMERA not found")
 	if $Roofnode:
 		$Roofnode.visible = false
-	is_hidden = false
+	player.is_hidden = false
 
 	# --- Re-capture mouse for player control ---
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
