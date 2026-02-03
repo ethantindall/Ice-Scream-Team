@@ -3,6 +3,8 @@ res://Assets/dialogicscripts/New_File.tres
 res://addons/fpc/character.tscn
 res://Assets/chars/00_completed chars/badguyWithAI.tscn
 res://main_map.tscn
-res://globalscripts/badguy_with_ai.gd
-res://Assets/flashlight.gd
 res://Assets/flashlight.tscn
+res://Assets/doghouse/doghouse.tscn
+res://Assets/cardboard_box.tscn
+res://globalscripts/badguy_with_ai.gd
+res://globalscripts/pickup_item.gd

@@ -20,7 +20,7 @@ enum State { IDLE, WALKING, RUNNING, SEARCHING }
 @export var rotation_speed: float = 10.0
 @export var path_update_interval: float = 0.25 
 @export var force_run: bool = true 
-@export var search_wait_time: float = 10.0 # How long to wait at last known pos
+@export var search_wait_time: float = 10.0 
 
 # --- INTERNAL VARIABLES ---
 var drag_timer: float = 0.0
@@ -43,7 +43,6 @@ var cached_player_collision: CollisionShape3D
 
 func _ready() -> void:
 	await get_tree().process_frame 
-	
 	if eye_cast:
 		eye_cast.enabled = true
 		eye_cast.exclude_parent = true
@@ -56,15 +55,12 @@ func _ready() -> void:
 
 func _get_dump_marker() -> Marker3D:
 	var truck = get_tree().get_first_node_in_group("ice_cream_truck")
-	if truck:
-		return truck.find_child("DumpMarker", true, false) as Marker3D
+	if truck: return truck.find_child("DumpMarker", true, false) as Marker3D
 	return null
 
 func _physics_process(delta: float) -> void:
 	if has_finished_game: return
-
-	if not is_on_floor():
-		velocity.y -= gravity * delta
+	if not is_on_floor(): velocity.y -= gravity * delta
 
 	update_timer += delta
 	if update_timer >= path_update_interval:
@@ -76,44 +72,52 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 func _process_vision_logic() -> void:
-    if is_dragging: return
+	if is_dragging: return
 
-    var can_see_now = _perform_vision_check()
-    
-    if can_see_now:
-        last_known_position = player.global_position
-        player_spotted = true
-        is_searching = false
-        is_waiting = false 
-    else:
-        # If we lost sight, but the player is NOT idle, keep searching
-        if player_spotted:
-            player_spotted = false
-            is_searching = true
-        
-        # KEY CHANGE: If we are searching, check if we should stop based on player state
-        if is_searching:
-            # Assuming your Player script has a 'current_state' or 'state' enum
-            # Replace 'State.IDLE' with the actual path to your player's Idle state
-            if player.current_state == player.State.IDLE:
-                # Optional: Only stop searching if we also reached the last known position
-                if navigation_agent_3d.is_navigation_finished():
-                    is_searching = false
-                    is_waiting = true # Transition to the wait/look-around timer
+	# NPC checks vision if player is in light OR if they are currently tracking/waiting
+	if is_player_in_light_area or player_spotted or is_searching or is_waiting:
+		var can_see_now = _perform_vision_check()
+		
+		if can_see_now:
+			last_known_position = player.global_position
+			player_spotted = true
+			is_searching = false
+			is_waiting = false
+			wait_timer = 0.0
+		else:
+			if player_spotted:
+				player_spotted = false
+				is_searching = true
+	else:
+		# Reset head/eye rotation when not active
+		eye_cast.rotation = Vector3.ZERO
 
 func _perform_vision_check() -> bool:
 	if not eye_cast or not player: return false
-	if not is_player_in_light_area: return false
-
+	
+	# Clear exceptions to avoid stacking old items
+	eye_cast.clear_exceptions()
+	eye_cast.add_exception(self) # Always ignore self
+	
+	# --- RIGIDBODY EXCEPTION LOGIC ---
+	var item_holder = player.get_node_or_null("Camera/ItemHolder")
+	if item_holder:
+		for child in item_holder.get_children():
+			# Ignore RigidBody3Ds specifically to prevent player from hiding behind held items
+			if child is RigidBody3D:
+				eye_cast.add_exception(child)
+	
+	# Point raycast at player's torso
 	var target_pos = player.global_position + Vector3(0, 0.6, 0)
 	eye_cast.look_at(target_pos, Vector3.UP)
+	
 	var dist = global_position.distance_to(player.global_position)
 	eye_cast.target_position = Vector3(0, 0, -(dist + 1.0))
-	
 	eye_cast.force_raycast_update() 
 
 	if eye_cast.is_colliding():
 		var hit = eye_cast.get_collider()
+		# If the ray hits the player directly
 		if hit and (hit == player or hit.is_in_group("player")):
 			return true
 	return false
@@ -136,33 +140,22 @@ func _handle_logic(delta: float) -> void:
 		current_state = State.WALKING
 		move_along_path(delta)
 		if reached_destination:
-			# Switch from moving to waiting
 			is_searching = false
 			is_waiting = true
 			wait_timer = 0.0
-			print("NPC: Arrived at last known spot. Searching...")
+			print("NPC: Searching area for 10 seconds...")
 	
 	elif is_waiting:
-			stop_moving()
+		current_state = State.IDLE
+		stop_moving()
+		wait_timer += delta
+		if wait_timer >= search_wait_time:
+			is_waiting = false
+			player_spotted = false 
+			is_searching = false
+			eye_cast.rotation = Vector3.ZERO
+			print("NPC: Giving up.")
 			
-			# Continue to look for the player even while standing still
-			if _perform_vision_check():
-				is_waiting = false
-				player_spotted = true
-				return # Immediately jump back to pursuit
-
-			wait_timer += delta
-			if wait_timer >= search_wait_time:
-				# Final check: is the player still out there moving?
-				if player.current_state != player.State.IDLE:
-					# Keep waiting or return to search if player is still making noise/moving
-					wait_timer = 0.0 
-				else:
-					is_waiting = false
-					current_state = State.IDLE
-					print("NPC: Player is quiet and hidden. Returning to idle.")
-			
-
 	else:
 		current_state = State.IDLE
 		stop_moving()
@@ -187,18 +180,12 @@ func update_pathfinding_target() -> void:
 func move_along_path(delta: float) -> void:
 	var next_path_pos = navigation_agent_3d.get_next_path_position()
 	var direction = global_position.direction_to(next_path_pos)
-	
-	var target_speed = walking_speed
-	if current_state == State.RUNNING and not is_dragging:
-		target_speed = running_speed
+	var target_speed = running_speed if (current_state == State.RUNNING and not is_dragging) else walking_speed
 	
 	if is_dragging:
 		var cycle_time = fmod(drag_timer, 1.5)
-		if cycle_time > 1.0:
-			target_speed = 0.0
-			animation_player.speed_scale = 0.0
-		else:
-			animation_player.speed_scale = 1.0
+		animation_player.speed_scale = 0.0 if cycle_time > 1.0 else 1.0
+		if cycle_time > 1.0: target_speed = 0.0
 	else:
 		animation_player.speed_scale = 1.0
 
@@ -245,7 +232,6 @@ func finish_drag():
 	if cached_player_collision: cached_player_collision.disabled = false
 	print("GAME OVER")
 
-# --- SIGNAL HANDLERS ---
 func _on_flashlight_player_in_area() -> void:
 	is_player_in_light_area = true
 
