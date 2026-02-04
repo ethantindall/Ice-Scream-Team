@@ -6,7 +6,5 @@ res://main_map.tscn
 res://Assets/flashlight.tscn
 res://Assets/doghouse/doghouse.tscn
 res://Assets/cardboard_box.tscn
-res://globalscripts/badguy_with_ai.gd
-res://globalscripts/pickup_item.gd
 res://addons/fpc/character.gd
-res://globalscripts/doghouse.gd
+res://globalscripts/badguy_with_ai.gd

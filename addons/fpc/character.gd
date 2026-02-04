@@ -23,8 +23,13 @@ const CAM_STAND_HEIGHT := 1.4
 const COLLISION_STAND_HEIGHT := 1.4
 const COLLISION_CROUCH_HEIGHT := 1.0
 var is_hidden := false
+
 # --- STATE ---
 var current_state: PlayerState = PlayerState.IDLE
+var immobile: bool = false
+
+@onready var player_raycast: RayCast3D = $Camera/RayCast3D
+@onready var item_holder: Node3D = $Camera/ItemHolder
 
 var _is_dragging := false
 var is_dragging: bool:
@@ -34,14 +39,13 @@ var is_dragging: bool:
 		_is_dragging = v
 		current_state = PlayerState.DRAGGED if v else PlayerState.IDLE
 
-		# Reset camera when released
-		if not v and CAMERA:
-			CAMERA.position.y = CAM_STAND_HEIGHT
-			CAMERA.rotation_degrees.y = 0.0
-
 		# --- DISABLE/ENABLE PLAYER RAYCAST ---
-		if $Camera/RayCast3D:
-			$Camera/RayCast3D.enabled = not v
+		if player_raycast:
+			player_raycast.enabled = not v
+		#if item_holder:
+		#	print("item holder is found")
+
+
 
 
 var _force_look := false
@@ -76,14 +80,6 @@ func _ready():
 
 
 func _physics_process(delta):
-	match current_state:
-		PlayerState.DRAGGED:
-			_handle_dragged_physics()
-			return
-		PlayerState.DIALOG:
-			_handle_dialog_physics(delta)
-			return
-
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 
@@ -98,19 +94,6 @@ func _physics_process(delta):
 	update_animations()
 
 
-# --- SPECIAL STATES ---
-
-func _handle_dragged_physics():
-	velocity = Vector3.ZERO
-	move_and_slide()
-
-func _handle_dialog_physics(delta):
-	var dir = global_position.direction_to(forced_look_target)
-	var target_yaw = atan2(-dir.x, -dir.z)
-	rotation.y = lerp_angle(rotation.y, target_yaw, forced_look_speed * delta)
-	velocity.x = lerp(velocity.x, 0.0, acceleration * delta)
-	velocity.z = lerp(velocity.z, 0.0, acceleration * delta)
-	move_and_slide()
 
 
 # --- INPUT ---
@@ -175,9 +158,6 @@ func handle_jumping():
 # --- STATE LOGIC ---
 
 func handle_state_logic(moving: bool):
-	if current_state in [PlayerState.DRAGGED, PlayerState.DIALOG]:
-		return
-
 	if Input.is_action_pressed("ui_crouch"):
 		current_state = PlayerState.CROUCHWALK if moving else PlayerState.CROUCHING
 		_set_crouch(true)

@@ -21,6 +21,7 @@ enum State { IDLE, WALKING, RUNNING, SEARCHING }
 @export var path_update_interval: float = 0.25 
 @export var force_run: bool = true 
 @export var search_wait_time: float = 10.0 
+@export var wander_radius: float = 6.0 # Distance the NPC will wander from the last seen spot
 
 # --- INTERNAL VARIABLES ---
 var drag_timer: float = 0.0
@@ -34,6 +35,7 @@ var player_spotted: bool = false
 var is_searching: bool = false
 var is_waiting: bool = false
 var last_known_position: Vector3 = Vector3.ZERO
+var wander_target: Vector3 = Vector3.ZERO # The current random point NPC is walking toward
 var has_finished_game: bool = false 
 var is_player_in_light_area: bool = false 
 
@@ -74,7 +76,6 @@ func _physics_process(delta: float) -> void:
 func _process_vision_logic() -> void:
 	if is_dragging: return
 
-	# NPC checks vision if player is in light OR if they are currently tracking/waiting
 	if is_player_in_light_area or player_spotted or is_searching or is_waiting:
 		var can_see_now = _perform_vision_check()
 		
@@ -89,25 +90,19 @@ func _process_vision_logic() -> void:
 				player_spotted = false
 				is_searching = true
 	else:
-		# Reset head/eye rotation when not active
 		eye_cast.rotation = Vector3.ZERO
 
 func _perform_vision_check() -> bool:
 	if not eye_cast or not player: return false
-	
-	# Clear exceptions to avoid stacking old items
 	eye_cast.clear_exceptions()
-	eye_cast.add_exception(self) # Always ignore self
+	eye_cast.add_exception(self)
 	
-	# --- RIGIDBODY EXCEPTION LOGIC ---
 	var item_holder = player.get_node_or_null("Camera/ItemHolder")
 	if item_holder:
 		for child in item_holder.get_children():
-			# Ignore RigidBody3Ds specifically to prevent player from hiding behind held items
 			if child is RigidBody3D:
 				eye_cast.add_exception(child)
 	
-	# Point raycast at player's torso
 	var target_pos = player.global_position + Vector3(0, 0.6, 0)
 	eye_cast.look_at(target_pos, Vector3.UP)
 	
@@ -117,7 +112,6 @@ func _perform_vision_check() -> bool:
 
 	if eye_cast.is_colliding():
 		var hit = eye_cast.get_collider()
-		# If the ray hits the player directly
 		if hit and (hit == player or hit.is_in_group("player")):
 			return true
 	return false
@@ -133,41 +127,65 @@ func _handle_logic(delta: float) -> void:
 			move_along_path(delta)
 			
 	elif player_spotted:
+		# NPC actively sees the player
 		current_state = State.RUNNING if force_run else State.WALKING
 		move_along_path(delta)
 		
 	elif is_searching:
-		current_state = State.WALKING
+		# NPC lost sight, but is RUSHING to the last seen spot
+		current_state = State.RUNNING # Change this from WALKING to RUNNING
 		move_along_path(delta)
+		
 		if reached_destination:
 			is_searching = false
 			is_waiting = true
 			wait_timer = 0.0
-			print("NPC: Searching area for 10 seconds...")
+			_pick_next_wander_point()
+			print("NPC: Reached last seen spot. Starting search...")
 	
 	elif is_waiting:
-		current_state = State.IDLE
-		stop_moving()
+		# NPC is now at the spot and is WALKING around looking
+		current_state = State.WALKING
+		
+		# Procedural head sweep (optional visual flair)
+		if eye_cast:
+			eye_cast.rotation.y = sin(Time.get_ticks_msec() * 0.005) * 0.8
+			
+		if reached_destination:
+			_pick_next_wander_point()
+			
+		move_along_path(delta)
+		
 		wait_timer += delta
 		if wait_timer >= search_wait_time:
-			is_waiting = false
-			player_spotted = false 
-			is_searching = false
-			eye_cast.rotation = Vector3.ZERO
-			print("NPC: Giving up.")
+			_stop_searching()
 			
 	else:
 		current_state = State.IDLE
 		stop_moving()
 
+
 func _drag_player_logic(delta: float) -> void:
 	if player:
 		drag_timer += delta
-		player.global_position = hand_marker.global_position
-		player.rotation_degrees.x = 90
-		player.rotation_degrees.y = rotation_degrees.y + 180
+		# Player automatically follows hand_marker as parent
+		# Only update camera position if needed
 		if cached_player_cam:
 			cached_player_cam.position = Vector3(0, 1.09, -0.35)
+
+func _pick_next_wander_point() -> void:
+	# Pick a random spot within a circle around the last known position
+	var angle = randf() * TAU
+	var distance = randf_range(3.0, wander_radius) # Minimum 3m away so they actually move
+	var offset = Vector3(cos(angle) * distance, 0, sin(angle) * distance)
+	wander_target = last_known_position + offset
+
+func _stop_searching() -> void:
+	is_waiting = false
+	player_spotted = false 
+	is_searching = false
+	if eye_cast: eye_cast.rotation = Vector3.ZERO
+	print("NPC: Gave up search.")
 
 func update_pathfinding_target() -> void:
 	if is_dragging and dump_marker:
@@ -175,7 +193,11 @@ func update_pathfinding_target() -> void:
 	elif player_spotted:
 		navigation_agent_3d.target_position = player.global_position
 	elif is_searching:
+		# Priority 1: The exact spot the player vanished
 		navigation_agent_3d.target_position = last_known_position
+	elif is_waiting:
+		# Priority 2: Random spots near that spot
+		navigation_agent_3d.target_position = wander_target
 
 func move_along_path(delta: float) -> void:
 	var next_path_pos = navigation_agent_3d.get_next_path_position()
@@ -211,26 +233,58 @@ func start_dragging():
 	player_spotted = false
 	is_searching = false
 	is_waiting = false
+
+	# Stop player physics
+	player.set_physics_process(false)
+	player.velocity = Vector3.ZERO
 	drag_timer = 0.0
+
+	# Cache
 	cached_player_cam = player.CAMERA
 	cached_player_anim = player.ANIMATIONPLAYER
 	cached_player_collision = player.COLLISION_MESH
-	player.is_dragging = true 
-	if cached_player_collision: cached_player_collision.disabled = true
-	if cached_player_anim: cached_player_anim.play("Crawling Back")
+	player.is_dragging = true
+
+	# Disable collision
+	if cached_player_collision:
+		cached_player_collision.disabled = true
+	player.collision_layer = 0
+	player.collision_mask = 0
+
+	# Play crawl animation
+	if cached_player_anim:
+		cached_player_anim.play("Crawling Back")
+
+	# Parent to hand marker
+	if player.get_parent() != hand_marker:
+		player.get_parent().remove_child(player)
+		hand_marker.add_child(player)
+
+	# Reset local transform and rotation
+	player.transform = Transform3D.IDENTITY
+	player.rotation_degrees = Vector3(90, 0, 0) # lying down, feet away
+
+	# Adjust camera
 	if cached_player_cam:
 		var t = create_tween().set_parallel(true)
 		t.tween_property(cached_player_cam, "rotation_degrees:x", -90.0, 0.5)
 		t.tween_property(cached_player_cam, "position", Vector3(0, 1.09, -0.35), 0.5)
 
 func finish_drag():
-	has_finished_game = true 
+	has_finished_game = true
 	is_dragging = false
 	velocity = Vector3.ZERO
 	player.is_dragging = false
-	player.rotation_degrees.x = 0
-	if cached_player_collision: cached_player_collision.disabled = false
-	print("GAME OVER")
+
+	# Restore collision
+	if cached_player_collision:
+		cached_player_collision.disabled = false
+	player.collision_layer = 1 # or whatever it was before
+	player.collision_mask = 1  # or whatever it was before
+
+	# Restore player rotation
+	player.rotation_degrees = Vector3.ZERO
+	player.set_physics_process(true)
 
 func _on_flashlight_player_in_area() -> void:
 	is_player_in_light_area = true
