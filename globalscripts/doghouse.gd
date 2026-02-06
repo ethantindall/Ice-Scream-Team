@@ -12,10 +12,15 @@ var pitch = 0.0
 var yaw = 0.0
 var base_rotation = Vector3.ZERO
 @onready var player: CharacterBody3D = get_tree().get_first_node_in_group("player") as CharacterBody3D
+@onready var collision_shape = player.get_node_or_null("Collision")
+@onready var badguy: CharacterBody3D = get_tree().get_first_node_in_group("badguy") as CharacterBody3D
 
 var camera_center_position: Vector3
 var camera_target_offset: float = 0.0    # current lateral offset
 var camera_forward_offset: float = 0.0   # current forward/back offset
+
+var player_hidden_here: bool = false
+
 
 func get_display_text():
 	return item_name
@@ -29,6 +34,12 @@ func hide_enter():
 	# --- Hide player and disable physics ---
 	player.visible = false
 	player.set_physics_process(false)
+	#also make collision shape invisible to prevent raycast from hitting it
+	if collision_shape:
+		collision_shape.disabled = true
+		push_warning("Player Collision node found, disabling it to prevent raycast issues")
+	else:
+		push_warning("Player Collision node not found, raycast may still hit player")
 
 	# --- Switch to doghouse camera ---
 	var doghouse_camera = $Camera3D
@@ -43,6 +54,7 @@ func hide_enter():
 		push_warning("Doghouse Camera3D not found")
 	
 	player.is_hidden = true
+	player_hidden_here = true
 
 func _physics_process(delta):
 	if player.is_hidden and $Camera3D:
@@ -95,6 +107,11 @@ func hide_exit():
 	if not player:
 		return
 
+	if collision_shape:
+		collision_shape.disabled = false
+	else:
+		push_warning("Player Collision node not found, cannot re-enable it")
+
 	var exit_marker = $ExitPoint
 	if exit_marker:
 		# --- Move player to exit marker ---
@@ -113,6 +130,7 @@ func hide_exit():
 	player.visible = true
 	player.set_physics_process(true)
 	player.is_hidden = false  # allow raycast to resume
+	player_hidden_here = false
 
 	# --- Reset RayCast3D is_hidden ---
 	var raycast_node = player.get_node_or_null("Camera/RayCast3D")
@@ -130,3 +148,11 @@ func hide_exit():
 
 	# --- Re-capture mouse for player control ---
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+
+
+func _on_badguy_area_body_entered(body: Node3D) -> void:
+	if body == badguy and player_hidden_here and player.is_hidden:
+		print("THE BADGUY IS IN THE AREA")
+		
+	else:
+		print("not the badguy")

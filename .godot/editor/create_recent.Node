@@ -1,7 +1,7 @@
-ProgressBar
-Camera3D
 CollisionShape3D
 Area3D
+ProgressBar
+Camera3D
 SpotLight3D
 MeshInstance3D
 BoneAttachment3D

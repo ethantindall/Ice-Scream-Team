@@ -20,8 +20,8 @@ enum State { IDLE, WALKING, RUNNING, SEARCHING }
 @export var rotation_speed: float = 10.0
 @export var path_update_interval: float = 0.25 
 @export var force_run: bool = true 
-@export var search_wait_time: float = 10.0 
-@export var wander_radius: float = 6.0 # Distance the NPC will wander from the last seen spot
+@export var search_wait_time: float = 20.0 
+@export var wander_radius: float = 11.0 # Distance the NPC will wander from the last seen spot
 
 # --- INTERNAL VARIABLES ---
 var drag_timer: float = 0.0
@@ -75,6 +75,16 @@ func _physics_process(delta: float) -> void:
 
 func _process_vision_logic() -> void:
 	if is_dragging: return
+
+	if is_searching:
+		if player_spotted and player.is_hidden:
+			print("The player tried to hide, but we saw him.")
+			#trigger something to indicate the NPC is aware of the hiding so they dont forget about the player next process frame
+
+			print("chase him down!")
+			
+		if not player_spotted and player.is_hidden:
+			print("The player is hidden, and we didn't see him hide, so we will ignore him.")
 
 	if is_player_in_light_area or player_spotted or is_searching or is_waiting:
 		var can_see_now = _perform_vision_check()

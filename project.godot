@@ -111,6 +111,7 @@ active_truck=""
 ice_cream_truck=""
 daytime_folder=""
 nighttime_folder=""
+badguy=""
 
 [input]
 
@@ -191,6 +192,7 @@ dialogic_default_action={
 
 3d_render/layer_1="All"
 3d_render/layer_2="Player"
+3d_physics/layer_3="BadguyLayer"
 
 [rendering]
 
