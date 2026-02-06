@@ -115,8 +115,8 @@ func hide_exit():
 	var exit_marker = $ExitPoint
 	if exit_marker:
 		# --- Move player to exit marker ---
-		player.global_position = exit_marker.global_position
-
+		player.global_position = exit_marker.global_position + Vector3.UP * 0.25
+		player.velocity = Vector3.ZERO
 		# --- Rotate HEAD to match marker yaw + 90° right ---
 		if player:
 			var marker_yaw = exit_marker.global_rotation.y
@@ -128,9 +128,14 @@ func hide_exit():
 
 	# --- Show player and enable physics ---
 	player.visible = true
-	player.set_physics_process(true)
-	player.is_hidden = false  # allow raycast to resume
+	player.is_hidden = false
 	player_hidden_here = false
+
+	await get_tree().physics_frame
+
+	player.set_physics_process(true)
+	if not player.is_on_floor():
+		player.move_and_slide()
 
 	# --- Reset RayCast3D is_hidden ---
 	var raycast_node = player.get_node_or_null("Camera/RayCast3D")
@@ -151,8 +156,9 @@ func hide_exit():
 
 
 func _on_badguy_area_body_entered(body: Node3D) -> void:
-	if body == badguy and player_hidden_here and player.is_hidden:
+	if body == badguy and player_hidden_here and player.is_hidden and badguy.get_em_anyway:
 		print("THE BADGUY IS IN THE AREA")
-		
+		hide_exit()
+		badguy.call_deferred("start_dragging")
 	else:
 		print("not the badguy")

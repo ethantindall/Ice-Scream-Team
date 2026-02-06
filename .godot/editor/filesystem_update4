@@ -4,7 +4,7 @@ res://addons/fpc/character.tscn
 res://Assets/chars/00_completed chars/badguyWithAI.tscn
 res://main_map.tscn
 res://Assets/flashlight.tscn
-res://globalscripts/badguy_with_ai.gd
-res://globalscripts/doghouse.gd
-res://Assets/trashcan/trashcan.tscn
 res://Assets/doghouse/doghouse.tscn
+res://Assets/trashcan/trashcan.tscn
+res://globalscripts/doghouse.gd
+res://globalscripts/badguy_with_ai.gd

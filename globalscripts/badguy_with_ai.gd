@@ -43,6 +43,10 @@ var cached_player_cam: Camera3D
 var cached_player_anim: AnimationPlayer
 var cached_player_collision: CollisionShape3D
 
+
+var get_em_anyway: bool = false  # Tracks if the NPC has seen the player hide in the current hiding attempt
+
+
 func _ready() -> void:
 	await get_tree().process_frame 
 	if eye_cast:
@@ -76,16 +80,6 @@ func _physics_process(delta: float) -> void:
 func _process_vision_logic() -> void:
 	if is_dragging: return
 
-	if is_searching:
-		if player_spotted and player.is_hidden:
-			print("The player tried to hide, but we saw him.")
-			#trigger something to indicate the NPC is aware of the hiding so they dont forget about the player next process frame
-
-			print("chase him down!")
-			
-		if not player_spotted and player.is_hidden:
-			print("The player is hidden, and we didn't see him hide, so we will ignore him.")
-
 	if is_player_in_light_area or player_spotted or is_searching or is_waiting:
 		var can_see_now = _perform_vision_check()
 		
@@ -99,8 +93,18 @@ func _process_vision_logic() -> void:
 			if player_spotted:
 				player_spotted = false
 				is_searching = true
+
+				if player.is_hidden:
+					get_em_anyway = true
+					last_known_position = player.global_position
+				else:
+					print("The player is not hidden, but we lost sight of him, so we will search for him.")
+					get_em_anyway = false
 	else:
 		eye_cast.rotation = Vector3.ZERO
+
+
+
 
 func _perform_vision_check() -> bool:
 	if not eye_cast or not player: return false
@@ -141,7 +145,7 @@ func _handle_logic(delta: float) -> void:
 		current_state = State.RUNNING if force_run else State.WALKING
 		move_along_path(delta)
 		
-	elif is_searching:
+	elif is_searching or get_em_anyway:
 		# NPC lost sight, but is RUSHING to the last seen spot
 		current_state = State.RUNNING # Change this from WALKING to RUNNING
 		move_along_path(delta)
@@ -194,6 +198,7 @@ func _stop_searching() -> void:
 	is_waiting = false
 	player_spotted = false 
 	is_searching = false
+	get_em_anyway = false
 	if eye_cast: eye_cast.rotation = Vector3.ZERO
 	print("NPC: Gave up search.")
 
@@ -208,6 +213,10 @@ func update_pathfinding_target() -> void:
 	elif is_waiting:
 		# Priority 2: Random spots near that spot
 		navigation_agent_3d.target_position = wander_target
+	elif get_em_anyway and player.is_hidden:
+		# If we know the player is hidden, we can still try to go to them
+		navigation_agent_3d.target_position = last_known_position
+		print("going to get em!")
 
 func move_along_path(delta: float) -> void:
 	var next_path_pos = navigation_agent_3d.get_next_path_position()
@@ -239,6 +248,9 @@ func stop_moving() -> void:
 		animation_player.play("animations/idle3")
 
 func start_dragging():
+	player.velocity = Vector3.ZERO
+	player.set_physics_process(false)
+
 	is_dragging = true
 	player_spotted = false
 	is_searching = false
