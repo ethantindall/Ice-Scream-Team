@@ -226,3 +226,8 @@ func _check_step_climb(direction: Vector3):
 		if step_height > min_step_height and step_height <= max_step_height:
 			global_position.y += step_height + 0.02
 			global_position += direction * 0.05
+
+
+
+func get_current_state() -> PlayerState:
+	return current_state

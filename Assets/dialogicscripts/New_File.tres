@@ -38,16 +38,16 @@ scene = ExtResource("6_ggbdv")
 overrides = {
 "box_color_custom": "Color(0, 0, 0, 0.752941)",
 "box_color_use_global": "false",
-"box_size": "Vector2(900, 400)",
+"box_size": "Vector2(700, 300)",
 "name_label_box_modulate": "Color(0, 0, 0, 0.752941)",
 "name_label_box_offset": "Vector2(0, -45)",
 "name_label_box_use_global_color": "false",
-"name_label_custom_font_size": "45.0",
+"name_label_custom_font_size": "30.0",
 "name_label_font": "\"res://Assets/font/DotGothic16/DotGothic16-Regular.ttf\"",
 "name_label_use_global_font": "false",
 "name_label_use_global_font_size": "false",
 "normal_font": "\"res://Assets/font/DotGothic16/DotGothic16-Regular.ttf\"",
-"text_size": "45.0",
+"text_size": "30.0",
 "text_use_global_size": "false"
 }
 
@@ -61,9 +61,9 @@ script = ExtResource("1_b5s68")
 scene = ExtResource("8_beyoi")
 overrides = {
 "boxes_min_size": "Vector2(600, 0)",
-"boxes_offset": "Vector2(0, 400)",
+"boxes_offset": "Vector2(0, 250)",
 "font_custom": "\"res://Assets/font/DotGothic16/DotGothic16-Regular.ttf\"",
-"font_size_custom": "30.0",
+"font_size_custom": "20.0",
 "font_size_use_global": "false",
 "font_use_global": "false"
 }
@@ -95,4 +95,4 @@ layer_info = {
 }
 base_overrides = {}
 layers = Array[ExtResource("1_b5s68")]([])
-metadata/_latest_layer = "13"
+metadata/_latest_layer = "15"

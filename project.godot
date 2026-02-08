@@ -8,6 +8,10 @@
 
 config_version=5
 
+[animation]
+
+warnings/check_invalid_track_paths=false
+
 [application]
 
 config/name="Ice Scream"
@@ -112,6 +116,8 @@ ice_cream_truck=""
 daytime_folder=""
 nighttime_folder=""
 badguy=""
+terrain_concrete=""
+terrain_grass=""
 
 [input]
 

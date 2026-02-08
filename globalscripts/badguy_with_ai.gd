@@ -1,7 +1,7 @@
 extends CharacterBody3D
 
 # --- ENUMS AND STATES ---
-enum State { IDLE, WALKING, RUNNING, SEARCHING }
+enum State { IDLE, WALKING, SPRINTING, SEARCHING }
 
 # --- NODES ---
 @onready var navigation_agent_3d: NavigationAgent3D = $NavigationAgent3D
@@ -142,12 +142,12 @@ func _handle_logic(delta: float) -> void:
 			
 	elif player_spotted:
 		# NPC actively sees the player
-		current_state = State.RUNNING if force_run else State.WALKING
+		current_state = State.SPRINTING if force_run else State.WALKING
 		move_along_path(delta)
 		
 	elif is_searching or get_em_anyway:
 		# NPC lost sight, but is RUSHING to the last seen spot
-		current_state = State.RUNNING # Change this from WALKING to RUNNING
+		current_state = State.SPRINTING # Change this from WALKING to RUNNING
 		move_along_path(delta)
 		
 		if reached_destination:
@@ -221,7 +221,7 @@ func update_pathfinding_target() -> void:
 func move_along_path(delta: float) -> void:
 	var next_path_pos = navigation_agent_3d.get_next_path_position()
 	var direction = global_position.direction_to(next_path_pos)
-	var target_speed = running_speed if (current_state == State.RUNNING and not is_dragging) else walking_speed
+	var target_speed = running_speed if (current_state == State.SPRINTING and not is_dragging) else walking_speed
 	
 	if is_dragging:
 		var cycle_time = fmod(drag_timer, 1.5)
@@ -324,3 +324,7 @@ func _on_proximity_alert_area_body_entered(body: Node3D) -> void:
 		is_searching = false
 		is_waiting = false
 		last_known_position = player.global_position
+
+
+func get_current_state() -> State:
+	return current_state
