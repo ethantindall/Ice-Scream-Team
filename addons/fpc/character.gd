@@ -211,23 +211,62 @@ func update_camera_fov():
 
 
 # --- STEP CLIMB ---
-
 func _check_step_climb(direction: Vector3):
+	if direction.length() < 0.1:
+		return
+	
 	var space_state = get_world_3d().direct_space_state
-	var ray_start = global_position + direction * step_check_dist + Vector3.UP * max_step_height
-	var ray_end = ray_start + Vector3.DOWN * max_step_height * 1.5
-
-	var query = PhysicsRayQueryParameters3D.create(ray_start, ray_end)
-	query.exclude = [get_rid()]
-
-	var result = space_state.intersect_ray(query)
-	if result:
-		var step_height = result.position.y - global_position.y
-		if step_height > min_step_height and step_height <= max_step_height:
-			global_position.y += step_height + 0.02
-			global_position += direction * 0.05
-
-
-
+	
+	# Check collision direction from last frame
+	var collision_directions = [direction.normalized()]
+	
+	# Add actual collision normals from move_and_slide
+	for i in get_slide_collision_count():
+		var collision = get_slide_collision(i)
+		var collision_normal = collision.get_normal()
+		# Get the direction we're pushing against the wall
+		var push_dir = -Vector3(collision_normal.x, 0, collision_normal.z).normalized()
+		if push_dir.length() > 0.1:
+			collision_directions.append(push_dir)
+	
+	var step_found = false
+	var best_step_height = 0.0
+	var best_step_position = global_position
+	
+	# Check each potential collision direction
+	for check_dir in collision_directions:
+		# Ray 1: Check if there's a wall/step in front
+		var forward_start = global_position + Vector3.UP * 0.1
+		var forward_end = forward_start + check_dir * step_check_dist
+		
+		var forward_query = PhysicsRayQueryParameters3D.create(forward_start, forward_end)
+		forward_query.exclude = [get_rid()]
+		var forward_result = space_state.intersect_ray(forward_query)
+		
+		if not forward_result:
+			continue
+		
+		# Ray 2: Check downward from above the obstacle
+		var down_start = forward_result.position + Vector3.UP * (max_step_height + 0.1)
+		var down_end = down_start + Vector3.DOWN * (max_step_height + 0.2)
+		
+		var down_query = PhysicsRayQueryParameters3D.create(down_start, down_end)
+		down_query.exclude = [get_rid()]
+		var down_result = space_state.intersect_ray(down_query)
+		
+		if down_result:
+			var step_height = down_result.position.y - global_position.y
+			
+			if step_height > min_step_height and step_height <= max_step_height:
+				if step_height > best_step_height:
+					best_step_height = step_height
+					best_step_position = down_result.position
+					step_found = true
+	
+	# Apply the step climb
+	if step_found:
+		global_position.y += best_step_height + 0.02
+		# Push forward slightly in the original direction
+		global_position += direction.normalized() * 0.1
 func get_current_state() -> PlayerState:
 	return current_state
