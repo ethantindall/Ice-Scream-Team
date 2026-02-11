@@ -91,7 +91,7 @@ movie_writer/movie_file="C:/Users/Ethan/Documents/GitHub/Ice-Scream-Team/moviego
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/dialogic/plugin.cfg")
+enabled=PackedStringArray("res://addons/asset_placer/plugin.cfg", "res://addons/dialogic/plugin.cfg")
 
 [filesystem]
 
@@ -118,6 +118,7 @@ nighttime_folder=""
 badguy=""
 terrain_concrete=""
 terrain_grass=""
+truck_navigation_markers=""
 
 [input]
 

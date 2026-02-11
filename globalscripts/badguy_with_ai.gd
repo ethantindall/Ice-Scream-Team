@@ -9,6 +9,8 @@ enum State { IDLE, WALKING, SPRINTING, SEARCHING }
 @onready var hand_marker: Marker3D = $HandMarker
 @onready var flashlight: Node3D = $GeneralSkeleton/BoneAttachment3D/Flashlight
 @onready var eye_cast: RayCast3D = $EyeCast
+@onready var eye_cast_left: RayCast3D = $EyeCastLeft
+@onready var eye_cast_right: RayCast3D = $EyeCastRight
 
 # --- REFERENCES ---
 @onready var player: CharacterBody3D = get_tree().get_first_node_in_group("player") as CharacterBody3D
@@ -22,6 +24,7 @@ enum State { IDLE, WALKING, SPRINTING, SEARCHING }
 @export var force_run: bool = true 
 @export var search_wait_time: float = 20.0 
 @export var wander_radius: float = 11.0 # Distance the NPC will wander from the last seen spot
+@export var side_raycast_angle: float = 25.0 # Angle in degrees for left/right raycasts
 
 # --- INTERNAL VARIABLES ---
 var drag_timer: float = 0.0
@@ -52,6 +55,15 @@ func _ready() -> void:
 	if eye_cast:
 		eye_cast.enabled = true
 		eye_cast.exclude_parent = true
+	
+	# Setup additional raycasts if they exist
+	if eye_cast_left:
+		eye_cast_left.enabled = true
+		eye_cast_left.exclude_parent = true
+	
+	if eye_cast_right:
+		eye_cast_right.enabled = true
+		eye_cast_right.exclude_parent = true
 	
 	if flashlight:
 		if flashlight.has_signal("player_in_flashlight_area"):
@@ -102,30 +114,56 @@ func _process_vision_logic() -> void:
 					get_em_anyway = false
 	else:
 		eye_cast.rotation = Vector3.ZERO
+		if eye_cast_left:
+			eye_cast_left.rotation = Vector3.ZERO
+		if eye_cast_right:
+			eye_cast_right.rotation = Vector3.ZERO
 
 
 
 
 func _perform_vision_check() -> bool:
 	if not eye_cast or not player: return false
-	eye_cast.clear_exceptions()
-	eye_cast.add_exception(self)
+	
+	# Check with center raycast
+	if _check_single_raycast(eye_cast, 0.0):
+		return true
+	
+	# Check with left raycast if it exists
+	if eye_cast_left and _check_single_raycast(eye_cast_left, -side_raycast_angle):
+		return true
+	
+	# Check with right raycast if it exists
+	if eye_cast_right and _check_single_raycast(eye_cast_right, side_raycast_angle):
+		return true
+	
+	return false
+
+func _check_single_raycast(raycast: RayCast3D, angle_offset: float) -> bool:
+	if not raycast: return false
+	
+	raycast.clear_exceptions()
+	raycast.add_exception(self)
 	
 	var item_holder = player.get_node_or_null("Camera/ItemHolder")
 	if item_holder:
 		for child in item_holder.get_children():
 			if child is RigidBody3D:
-				eye_cast.add_exception(child)
+				raycast.add_exception(child)
 	
 	var target_pos = player.global_position + Vector3(0, 0.6, 0)
-	eye_cast.look_at(target_pos, Vector3.UP)
+	raycast.look_at(target_pos, Vector3.UP)
+	
+	# Apply angle offset for side raycasts
+	if angle_offset != 0.0:
+		raycast.rotation_degrees.y += angle_offset
 	
 	var dist = global_position.distance_to(player.global_position)
-	eye_cast.target_position = Vector3(0, 0, -(dist + 1.0))
-	eye_cast.force_raycast_update() 
+	raycast.target_position = Vector3(0, 0, -(dist + 1.0))
+	raycast.force_raycast_update() 
 
-	if eye_cast.is_colliding():
-		var hit = eye_cast.get_collider()
+	if raycast.is_colliding():
+		var hit = raycast.get_collider()
 		if hit and (hit == player or hit.is_in_group("player")):
 			return true
 	return false
@@ -164,6 +202,10 @@ func _handle_logic(delta: float) -> void:
 		# Procedural head sweep (optional visual flair)
 		if eye_cast:
 			eye_cast.rotation.y = sin(Time.get_ticks_msec() * 0.005) * 0.8
+		if eye_cast_left:
+			eye_cast_left.rotation.y = sin(Time.get_ticks_msec() * 0.005) * 0.8
+		if eye_cast_right:
+			eye_cast_right.rotation.y = sin(Time.get_ticks_msec() * 0.005) * 0.8
 			
 		if reached_destination:
 			_pick_next_wander_point()
@@ -200,6 +242,8 @@ func _stop_searching() -> void:
 	is_searching = false
 	get_em_anyway = false
 	if eye_cast: eye_cast.rotation = Vector3.ZERO
+	if eye_cast_left: eye_cast_left.rotation = Vector3.ZERO
+	if eye_cast_right: eye_cast_right.rotation = Vector3.ZERO
 	print("NPC: Gave up search.")
 
 func update_pathfinding_target() -> void:

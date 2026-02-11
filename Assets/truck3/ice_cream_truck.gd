@@ -1,14 +1,6 @@
 extends Node3D
 
-
-@export var is_active_truck:bool
-
-@export_group("Lighting Settings")
-@export var lights_on: bool = false:
-	set(value):
-		lights_on = value
-		if is_inside_tree():
-			_update_lights()
+@export var is_active_truck: bool
 
 @export_group("Movement Physics")
 @export_subgroup("Speeds")
@@ -26,23 +18,17 @@ extends Node3D
 var current_speed := 0.0
 var is_driving = false
 
-# In Godot 4, we use typed nodes for better autocompletion
 @onready var path_follower: PathFollow3D = get_parent() as PathFollow3D
 @onready var path_node: Path3D = get_parent().get_parent() as Path3D
 
 func _ready() -> void:
 	if is_active_truck:
-		#add to global group active_truck
 		add_to_group("active_truck")
 		print("added to active truck group")
 		self.visible = false
 		
 		$AudioStreamPlayer3D.pitch_scale = audio_speed
 		$AudioStreamPlayer3D.playing = is_playing
-		
-	# Initial light check based on your GameSettings autoload
-	lights_on = (GameSettings.time_of_day != "DAY")
-	_update_lights()
 
 func _physics_process(delta: float) -> void:
 	if not path_follower or not path_node:
@@ -89,8 +75,3 @@ func _smooth_rotate(delta: float) -> void:
 	if global_position.distance_to(target_pos_global) > 0.1:
 		var look_transform = global_transform.looking_at(target_pos_global, Vector3.UP)
 		global_transform.basis = global_transform.basis.slerp(look_transform.basis, steering_speed * delta)
-		
-		
-func _update_lights() -> void:
-	if has_node("Lights"):
-		$Lights.visible = lights_on
