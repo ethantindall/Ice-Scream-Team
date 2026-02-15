@@ -127,9 +127,9 @@ func apply_time_of_day():
 			sky.sky_curve = NIGHT_CURVE
 			env.volumetric_fog_enabled = true
 			env.fog_enabled = false
-			for truck in get_tree().get_nodes_in_group("ice_cream_truck"):
-				truck.lights_on = true
-				truck._update_lights()
+			#for truck in get_tree().get_nodes_in_group("ice_cream_truck"):
+			#	truck.get_node("Lights").lights_on = true
+			#	truck.get_node("Lights")._update_lights()
 			
 	# --- Population (Folder) Logic ---
 	print("Sky changed. Updating population groups: daytime_folder, nighttime_folder")

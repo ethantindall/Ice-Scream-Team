@@ -8,20 +8,46 @@ class_name IceCreamTruckAI
 @export var arrival_threshold := 1.0
 
 @export_group("Pathfinding")
-@export var starting_marker: RoadMarker  # Set this to where truck starts
-@export var pause_at_markers := 0.5
-@export var avoid_backtracking := true  # Try to avoid immediate U-turns
+@export var starting_marker: RoadMarker
+@export var pause_at_markers := 0.0
+@export var avoid_backtracking := true
+
+@export_group("Player Detection")
+@export var raycast_check_interval := 0.2  # Check every 0.2 seconds
+@export var player_layer := 1  # Physics layer the player is on
 
 var current_speed := 0.0
 var current_target: RoadMarker = null
-var previous_marker: RoadMarker = null  # Track where we came from
-var marker_before_previous: RoadMarker = null  # Track 2 steps back for better backtrack avoidance
+var previous_marker: RoadMarker = null
+var marker_before_previous: RoadMarker = null
 var pause_timer := 0.0
 var is_paused := false
 
+# Detection variables
+var player_in_area := false
+var player_detected := false
+var player_node: Node3D = null
+var raycast_timer := 0.0
+
+@onready var trigger_area: Area3D = $ObservationSystem/TriggerArea
+@onready var right_raycast: RayCast3D = $ObservationSystem/RightRaycast
+@onready var left_raycast: RayCast3D = $ObservationSystem/LeftRaycast
+
 func _ready() -> void:
+	# Connect area signals
+	#if trigger_area:
+	#	trigger_area.body_entered.connect(_on_player_entered_area)
+	#	trigger_area.body_exited.connect(_on_player_exited_area)
+	
+	# Setup raycasts
+	if right_raycast:
+		right_raycast.enabled = true
+		right_raycast.collision_mask = player_layer
+	if left_raycast:
+		left_raycast.enabled = true
+		left_raycast.collision_mask = player_layer
+	
 	if starting_marker:
-		# Position truck at starting marker
 		global_position = starting_marker.global_position
 		previous_marker = starting_marker
 		_choose_next_marker()
@@ -29,6 +55,19 @@ func _ready() -> void:
 		push_warning("IceCreamTruck: No starting_marker assigned!")
 
 func _physics_process(delta: float) -> void:
+	# Update raycast timer
+	raycast_timer += delta
+	
+	# Check for player if they're in the area
+	if player_in_area and player_node and raycast_timer >= raycast_check_interval:
+		raycast_timer = 0.0
+		_check_player_visibility()
+	
+	# If player is detected, stop the truck
+	if player_detected:
+		current_speed = lerp(current_speed, 0.0, acceleration * delta)
+		return
+	
 	if not current_target:
 		return
 	
@@ -42,22 +81,23 @@ func _physics_process(delta: float) -> void:
 	
 	# Move toward target
 	var direction = (current_target.global_position - global_position)
-	direction.y = 0  # Keep movement on XZ plane
+	direction.y = 0
 	var distance = direction.length()
 	
-	# Check if we've arrived
 	if distance < arrival_threshold:
 		_arrive_at_marker()
 		return
 	
-	# Accelerate
-	current_speed = lerp(current_speed, speed, acceleration * delta)
+	var forward = -global_transform.basis.z
+	var angle_to_target = forward.angle_to(direction.normalized())
+	var turn_factor = 1.0 - clamp(angle_to_target / PI, 0.0, 0.7)
+	var target_speed = speed * turn_factor
 	
-	# Move forward
+	current_speed = lerp(current_speed, target_speed, acceleration * delta)
+	
 	var velocity = direction.normalized() * current_speed
 	global_position += velocity * delta
 	
-	# Smooth rotation toward target
 	_smooth_look_at(current_target.global_position, delta)
 
 func _smooth_look_at(target_pos: Vector3, delta: float) -> void:
@@ -71,19 +111,63 @@ func _smooth_look_at(target_pos: Vector3, delta: float) -> void:
 			steering_speed * delta
 		)
 
+func _check_player_visibility() -> void:
+	if not player_node:
+		return
+	
+	# Point both raycasts at the player
+	var player_pos = player_node.global_position
+	
+	# Try right raycast
+	right_raycast.target_position = right_raycast.to_local(player_pos)
+	right_raycast.force_raycast_update()
+	
+	if right_raycast.is_colliding():
+		var collider = right_raycast.get_collider()
+		if collider == player_node or (collider.get_parent() == player_node if collider.get_parent() else false):
+			_player_spotted()
+			return
+	
+	# Try left raycast
+	left_raycast.target_position = left_raycast.to_local(player_pos)
+	left_raycast.force_raycast_update()
+	
+	if left_raycast.is_colliding():
+		var collider = left_raycast.get_collider()
+		if collider == player_node or (collider.get_parent() == player_node if collider.get_parent() else false):
+			_player_spotted()
+			return
+
+func _player_spotted() -> void:
+	if not player_detected:
+		player_detected = true
+		print("Player spotted! Truck stopping.")
+		# You can emit a signal here or trigger other events
+
+func _on_player_entered_area(body: Node3D) -> void:
+	# Check if it's the player (adjust this check based on your player setup)
+	if body.is_in_group("player") or body.name == "Player":
+		player_in_area = true
+		player_node = body
+		print("Player entered detection area")
+
+func _on_player_exited_area(body: Node3D) -> void:
+	if body == player_node:
+		player_in_area = false
+		player_node = null
+		player_detected = false  # Reset detection when player leaves
+		print("Player left detection area")
+
 func _arrive_at_marker() -> void:
 	print("Arrived at marker: %s" % current_target.name)
 	
-	# Update marker history (shift the chain back)
 	marker_before_previous = previous_marker
 	previous_marker = current_target
 	
-	# Pause at intersection
 	if pause_at_markers > 0:
 		is_paused = true
 		pause_timer = pause_at_markers
 	
-	# Choose next marker
 	_choose_next_marker()
 
 func _choose_next_marker() -> void:
@@ -93,18 +177,13 @@ func _choose_next_marker() -> void:
 	var from_marker = current_target if current_target else previous_marker
 	
 	if avoid_backtracking:
-		# Get all connected markers
 		var all_connected = from_marker.get_connected_markers()
-		
-		# Filter out the marker we just came from
 		var forward_options = all_connected.filter(func(m): return m != marker_before_previous)
 		
 		if forward_options.size() > 0:
-			# Pick randomly from forward options
 			current_target = forward_options[randi() % forward_options.size()]
 			print("Next destination: %s (avoiding backtrack)" % current_target.name)
 		else:
-			# Dead end - we have to backtrack
 			print("Dead end reached, backtracking...")
 			current_target = from_marker.get_random_connected()
 			if current_target:
@@ -112,20 +191,24 @@ func _choose_next_marker() -> void:
 			else:
 				push_warning("No valid next marker from: %s" % from_marker.name)
 	else:
-		# Original behavior: exclude only immediate previous
 		var next = from_marker.get_random_connected(previous_marker)
 		
 		if next:
 			current_target = next
 			print("Next destination: %s" % current_target.name)
 		else:
-			# No valid next marker - this shouldn't happen if markers are set up correctly
 			push_warning("No valid next marker from: %s" % from_marker.name)
-			# As fallback, allow backtracking
 			current_target = from_marker.get_random_connected()
 
-# Optional: Force truck to go to a specific marker
 func set_destination(marker: RoadMarker) -> void:
 	if marker:
 		current_target = marker
 		is_paused = false
+
+
+func _on_trigger_area_body_entered(body: Node3D) -> void:
+	_on_player_entered_area(body)
+
+
+func _on_trigger_area_body_exited(body: Node3D) -> void:
+	_on_player_exited_area(body)
