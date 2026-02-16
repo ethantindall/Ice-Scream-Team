@@ -30,6 +30,7 @@ var immobile: bool = false
 
 @onready var player_raycast: RayCast3D = $Camera/RayCast3D
 @onready var item_holder: Node3D = $Camera/ItemHolder
+@onready var step_climb_component: StepClimbComponent = $StepClimbComponent
 
 var _is_dragging := false
 var is_dragging: bool:
@@ -38,15 +39,8 @@ var is_dragging: bool:
 	set(v):
 		_is_dragging = v
 		current_state = PlayerState.DRAGGED if v else PlayerState.IDLE
-
-		# --- DISABLE/ENABLE PLAYER RAYCAST ---
 		if player_raycast:
 			player_raycast.enabled = not v
-		#if item_holder:
-		#	print("item holder is found")
-
-
-
 
 var _force_look := false
 var force_look: bool:
@@ -55,11 +49,6 @@ var force_look: bool:
 	set(v):
 		_force_look = v
 		current_state = PlayerState.DIALOG if v else PlayerState.IDLE
-
-# --- STEP CLIMB ---
-var max_step_height := 0.25
-var min_step_height := 0.05
-var step_check_dist := 0.4
 
 # --- MISC ---
 var gravity := ProjectSettings.get_setting("physics/3d/default_gravity")
@@ -92,8 +81,6 @@ func _physics_process(delta):
 	handle_movement(delta, direction)
 	update_camera_fov()
 	update_animations()
-
-
 
 
 # --- INPUT ---
@@ -137,7 +124,7 @@ func handle_movement(delta, direction: Vector3):
 
 	if is_on_floor():
 		if direction.length() > 0.0:
-			_check_step_climb(direction)
+			step_climb_component.check_step_climb(direction)
 		velocity.x = target_velocity.x
 		velocity.z = target_velocity.z
 	else:
@@ -209,64 +196,5 @@ func update_camera_fov():
 	var target_fov = 65.0 if current_state == PlayerState.SPRINTING else 55.0
 	CAMERA.fov = lerp(CAMERA.fov, target_fov, 0.1)
 
-
-# --- STEP CLIMB ---
-func _check_step_climb(direction: Vector3):
-	if direction.length() < 0.1:
-		return
-	
-	var space_state = get_world_3d().direct_space_state
-	
-	# Check collision direction from last frame
-	var collision_directions = [direction.normalized()]
-	
-	# Add actual collision normals from move_and_slide
-	for i in get_slide_collision_count():
-		var collision = get_slide_collision(i)
-		var collision_normal = collision.get_normal()
-		# Get the direction we're pushing against the wall
-		var push_dir = -Vector3(collision_normal.x, 0, collision_normal.z).normalized()
-		if push_dir.length() > 0.1:
-			collision_directions.append(push_dir)
-	
-	var step_found = false
-	var best_step_height = 0.0
-	var best_step_position = global_position
-	
-	# Check each potential collision direction
-	for check_dir in collision_directions:
-		# Ray 1: Check if there's a wall/step in front
-		var forward_start = global_position + Vector3.UP * 0.1
-		var forward_end = forward_start + check_dir * step_check_dist
-		
-		var forward_query = PhysicsRayQueryParameters3D.create(forward_start, forward_end)
-		forward_query.exclude = [get_rid()]
-		var forward_result = space_state.intersect_ray(forward_query)
-		
-		if not forward_result:
-			continue
-		
-		# Ray 2: Check downward from above the obstacle
-		var down_start = forward_result.position + Vector3.UP * (max_step_height + 0.1)
-		var down_end = down_start + Vector3.DOWN * (max_step_height + 0.2)
-		
-		var down_query = PhysicsRayQueryParameters3D.create(down_start, down_end)
-		down_query.exclude = [get_rid()]
-		var down_result = space_state.intersect_ray(down_query)
-		
-		if down_result:
-			var step_height = down_result.position.y - global_position.y
-			
-			if step_height > min_step_height and step_height <= max_step_height:
-				if step_height > best_step_height:
-					best_step_height = step_height
-					best_step_position = down_result.position
-					step_found = true
-	
-	# Apply the step climb
-	if step_found:
-		global_position.y += best_step_height + 0.02
-		# Push forward slightly in the original direction
-		global_position += direction.normalized() * 0.1
 func get_current_state() -> PlayerState:
 	return current_state

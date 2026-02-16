@@ -119,6 +119,8 @@ badguy=""
 terrain_concrete=""
 terrain_grass=""
 truck_navigation_markers=""
+badguy_navmesh=""
+dump_marker=""
 
 [input]
 

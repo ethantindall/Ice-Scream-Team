@@ -1,6 +1,9 @@
 extends Node3D
 class_name IceCreamTruckAI
 
+@onready var brake_audio: AudioStreamPlayer3D = $BrakeStreamPlayer
+@onready var spawner: EnemySpawnerComponent = $EnemySpawnerComponent
+
 @export_group("Movement")
 @export var speed := 5.0
 @export var acceleration := 2.0
@@ -15,6 +18,10 @@ class_name IceCreamTruckAI
 @export_group("Player Detection")
 @export var raycast_check_interval := 0.2  # Check every 0.2 seconds
 @export var player_layer := 1  # Physics layer the player is on
+@export var brake_swerve_angle := 6.0  # Degrees to rotate during brake swerve
+@export var brake_swerve_speed := 10.0  # How fast the swerve rotations happen
+@export var brake_tilt_angle := -3.0  # Degrees to tilt forward when braking
+@export var brake_tilt_speed := 10.0  # How fast the tilt happens
 
 var current_speed := 0.0
 var current_target: RoadMarker = null
@@ -28,6 +35,14 @@ var player_in_area := false
 var player_detected := false
 var player_node: Node3D = null
 var raycast_timer := 0.0
+var player_seen_location: Vector3 = Vector3.ZERO
+var closest_point_reached := false
+var is_braking := false
+var brake_swerve_state := 0  # 0 = not braking, 1 = left, 2 = right, 3 = center, 4 = done
+var original_rotation: Vector3 = Vector3.ZERO
+var target_brake_rotation: float = 0.0
+var original_tilt: float = 0.0
+var is_tilting := false
 
 @onready var trigger_area: Area3D = $ObservationSystem/TriggerArea
 @onready var right_raycast: RayCast3D = $ObservationSystem/RightRaycast
@@ -54,6 +69,8 @@ func _ready() -> void:
 	else:
 		push_warning("IceCreamTruck: No starting_marker assigned!")
 
+	spawner.enemy_despawned.connect(_on_enemy_hunt_finished)
+
 func _physics_process(delta: float) -> void:
 	# Update raycast timer
 	raycast_timer += delta
@@ -63,10 +80,63 @@ func _physics_process(delta: float) -> void:
 		raycast_timer = 0.0
 		_check_player_visibility()
 	
-	# If player is detected, stop the truck
+	# If player is detected, check if we've reached the closest point
 	if player_detected:
-		current_speed = lerp(current_speed, 0.0, acceleration * delta)
-		return
+		if not closest_point_reached and _is_at_closest_point_to_player():
+			closest_point_reached = true
+			is_braking = true
+			brake_audio.play()
+			brake_swerve_state = 1
+			original_rotation = rotation
+			original_tilt = rotation.x
+			is_tilting = true
+			target_brake_rotation = original_rotation.y - deg_to_rad(brake_swerve_angle)  # Start with left
+			print("Reached closest point to player, initiating braking sequence...")
+		
+		if closest_point_reached:
+			# 1. Apply brake tilt (visual juice)
+			if is_tilting:
+				if current_speed > 0.5:
+					var target_tilt = original_tilt + deg_to_rad(brake_tilt_angle)
+					rotation.x = lerp_angle(rotation.x, target_tilt, brake_tilt_speed * delta)
+				else:
+					rotation.x = lerp_angle(rotation.x, original_tilt, brake_tilt_speed * delta)
+					if abs(rotation.x - original_tilt) < 0.01:
+						is_tilting = false
+			
+			# 2. Apply brake swerve rotation sequence
+			if is_braking and brake_swerve_state > 0 and brake_swerve_state < 4:
+				var current_y = rotation.y
+				var rotation_diff = target_brake_rotation - current_y
+				
+				if abs(rotation_diff) < 0.01:
+					brake_swerve_state += 1
+					if brake_swerve_state == 2:
+						target_brake_rotation = original_rotation.y + deg_to_rad(brake_swerve_angle)
+					elif brake_swerve_state == 3:
+						target_brake_rotation = original_rotation.y
+					elif brake_swerve_state == 4:
+						is_braking = false # Swerve finished
+				else:
+					rotation.y = lerp_angle(current_y, target_brake_rotation, brake_swerve_speed * delta)
+			
+			# 3. Handle Deceleration
+			current_speed = lerp(current_speed, 0.0, acceleration * delta)
+			
+			# 4. Trigger Spawn only when speed is near zero
+			if current_speed <= 0.1:
+				current_speed = 0.0
+				if not spawner.is_processing_spawn and not spawner.current_enemy:
+					print("Truck stopped. Triggering NPC spawn.")
+					spawner.start_spawn_sequence()
+			
+			# 5. Apply movement if still sliding/braking
+			if current_speed > 0.0:
+				var forward = -global_transform.basis.z
+				var velocity = forward * current_speed
+				global_position += velocity * delta
+			
+			return # Exit process while interacting with player
 	
 	if not current_target:
 		return
@@ -79,7 +149,7 @@ func _physics_process(delta: float) -> void:
 			is_paused = false
 		return
 	
-	# Move toward target
+	# Normal Movement toward target
 	var direction = (current_target.global_position - global_position)
 	direction.y = 0
 	var distance = direction.length()
@@ -99,6 +169,26 @@ func _physics_process(delta: float) -> void:
 	global_position += velocity * delta
 	
 	_smooth_look_at(current_target.global_position, delta)
+	
+func _is_at_closest_point_to_player() -> bool:
+	if player_seen_location == Vector3.ZERO or not current_target:
+		return false
+	
+	# Flatten positions to 2D for distance calculation
+	var truck_pos_2d = Vector2(global_position.x, global_position.z)
+	var player_pos_2d = Vector2(player_seen_location.x, player_seen_location.z)
+	var target_pos_2d = Vector2(current_target.global_position.x, current_target.global_position.z)
+	
+	# Calculate current distance to player
+	var current_distance = truck_pos_2d.distance_to(player_pos_2d)
+	
+	# Calculate what the distance would be if we moved forward a bit
+	var direction_to_target = (target_pos_2d - truck_pos_2d).normalized()
+	var future_pos = truck_pos_2d + direction_to_target * (current_speed * 0.2)  # Look ahead 0.2 seconds
+	var future_distance = future_pos.distance_to(player_pos_2d)
+	
+	# If future distance is greater, we've passed the closest point
+	return future_distance > current_distance
 
 func _smooth_look_at(target_pos: Vector3, delta: float) -> void:
 	var flat_target = target_pos
@@ -141,7 +231,8 @@ func _check_player_visibility() -> void:
 func _player_spotted() -> void:
 	if not player_detected:
 		player_detected = true
-		print("Player spotted! Truck stopping.")
+		player_seen_location = player_node.global_position
+		print("Player spotted at location: %s" % player_seen_location)
 		# You can emit a signal here or trigger other events
 
 func _on_player_entered_area(body: Node3D) -> void:
@@ -155,7 +246,7 @@ func _on_player_exited_area(body: Node3D) -> void:
 	if body == player_node:
 		player_in_area = false
 		player_node = null
-		player_detected = false  # Reset detection when player leaves
+		# Don't reset detection flags - truck should stay stopped
 		print("Player left detection area")
 
 func _arrive_at_marker() -> void:
@@ -205,10 +296,18 @@ func set_destination(marker: RoadMarker) -> void:
 		current_target = marker
 		is_paused = false
 
-
 func _on_trigger_area_body_entered(body: Node3D) -> void:
 	_on_player_entered_area(body)
 
-
 func _on_trigger_area_body_exited(body: Node3D) -> void:
-	_on_player_exited_area(body)
+	_on_player_exited_area(body)	
+
+
+func _on_enemy_hunt_finished() -> void:
+	# Reset truck variables so it can drive and look for the player again
+	player_detected = false
+	closest_point_reached = false
+	is_braking = false
+	brake_swerve_state = 0
+	_choose_next_marker() 
+	print("Enemy gone. Truck resuming patrol.")

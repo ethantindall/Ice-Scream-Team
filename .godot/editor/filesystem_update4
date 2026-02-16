@@ -1,3 +1,13 @@
 res://backup ground.tscn
 res://Assets/dialogicscripts/New_File.tres
+res://Assets/ice cream truck/truck_with_ai.gd
+res://components/enemy_spawner_component.gd
+res://testAI.tscn
+res://components/enemy_spawner_component.tscn
 res://Assets/ice cream truck/truck_with_ai.tscn
+res://Assets/chars/00_completed chars/badguyWithAI.tscn
+res://components/step_climb_component.gd
+res://addons/fpc/character.gd
+res://globalscripts/badguy_with_ai.gd
+res://components/step_climb_component.tscn
+res://addons/fpc/character.tscn
