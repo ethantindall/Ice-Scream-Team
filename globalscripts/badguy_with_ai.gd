@@ -1,7 +1,7 @@
 extends CharacterBody3D
 
 # --- ENUMS AND STATES ---
-enum State { IDLE, WALKING, SPRINTING, SEARCHING }
+enum State { IDLE, WALKING, SPRINTING, SEARCHING, RETURNING_TO_SPAWN }
 
 # --- NODES ---
 @onready var navigation_agent_3d: NavigationAgent3D = $NavigationAgent3D
@@ -23,6 +23,7 @@ enum State { IDLE, WALKING, SPRINTING, SEARCHING }
 @export var force_run: bool = true 
 @export var search_wait_time: float = 20.0 
 @export var wander_radius: float = 11.0 
+@export var player_left_navmesh_wait_time: float = 2.0
 
 # --- INTERNAL VARIABLES ---
 var drag_timer: float = 0.0
@@ -44,11 +45,23 @@ var cached_player_cam: Camera3D
 var cached_player_anim: AnimationPlayer
 var cached_player_collision: CollisionShape3D
 
-var get_em_anyway: bool = false  
+var get_em_anyway: bool = false
+
+# --- RETURN TO SPAWN VARIABLES ---
+var spawn_position: Vector3 = Vector3.ZERO
+var is_returning_to_spawn: bool = false
+var player_left_navmesh_timer: float = 0.0
+var is_waiting_after_player_left: bool = false
+
+signal returned_to_truck
 
 
 func _ready() -> void:
 	await get_tree().process_frame 
+	
+	# Store spawn position
+	spawn_position = global_position
+	
 	if eye_cast:
 		eye_cast.enabled = true
 		eye_cast.exclude_parent = true
@@ -58,6 +71,12 @@ func _ready() -> void:
 			flashlight.player_in_flashlight_area.connect(_on_flashlight_player_in_area)
 		if flashlight.has_signal("player_left_flashlight_area"):
 			flashlight.player_left_flashlight_area.connect(_on_flashlight_player_left_area)
+	
+	# Automatically start chasing the player on spawn
+	if player:
+		player_spotted = true
+		last_known_position = player.global_position
+		print("BadGuy spawned - immediately chasing player!")
 
 func _get_dump_marker() -> Marker3D:
 	# Try to find dump_marker directly in the group
@@ -79,6 +98,7 @@ func _physics_process(delta: float) -> void:
 
 	update_timer += delta
 	if update_timer >= path_update_interval:
+		_check_player_on_navmesh()
 		_process_vision_logic()
 		update_pathfinding_target()
 		update_timer = 0.0
@@ -86,8 +106,35 @@ func _physics_process(delta: float) -> void:
 	_handle_logic(delta)
 	move_and_slide()
 
+func _check_player_on_navmesh() -> void:
+	if is_dragging or not player: return
+	
+	# Check if player's position is on the navmesh
+	var nav_map = navigation_agent_3d.get_navigation_map()
+	var closest_point = NavigationServer3D.map_get_closest_point(nav_map, player.global_position)
+	var distance_to_navmesh = player.global_position.distance_to(closest_point)
+	
+	# If player is more than 2 meters from navmesh, they've left it
+	if distance_to_navmesh > 2.0:
+		if not is_waiting_after_player_left and not is_returning_to_spawn:
+			print("DEBUG: Player left navmesh! Waiting 2 seconds...")
+			is_waiting_after_player_left = true
+			player_left_navmesh_timer = 0.0
+	else:
+		# Player is back on navmesh
+		if is_waiting_after_player_left or is_returning_to_spawn:
+			print("DEBUG: Player returned to navmesh! Re-engaging chase...")
+			_cancel_return_to_spawn()
+			player_spotted = true
+			last_known_position = player.global_position
+
+func _cancel_return_to_spawn() -> void:
+	is_waiting_after_player_left = false
+	is_returning_to_spawn = false
+	player_left_navmesh_timer = 0.0
+
 func _process_vision_logic() -> void:
-	if is_dragging: return
+	if is_dragging or is_returning_to_spawn: return
 
 	if is_player_in_light_area or player_spotted or is_searching or is_waiting:
 		var can_see_now = _perform_vision_check()
@@ -143,6 +190,27 @@ func _check_single_raycast(raycast: RayCast3D) -> bool:
 func _handle_logic(delta: float) -> void:
 	var reached_destination = navigation_agent_3d.is_navigation_finished()
 	
+	# Handle waiting after player left navmesh
+	if is_waiting_after_player_left and not is_returning_to_spawn:
+		player_left_navmesh_timer += delta
+		current_state = State.IDLE
+		stop_moving()
+		
+		if player_left_navmesh_timer >= player_left_navmesh_wait_time:
+			print("DEBUG: Player still off navmesh. Returning to spawn...")
+			_start_return_to_spawn()
+		return
+	
+	# Handle returning to spawn (SPRINTING back)
+	if is_returning_to_spawn:
+		current_state = State.SPRINTING
+		move_along_path(delta)
+		
+		if reached_destination and global_position.distance_to(spawn_position) < 2.0:
+			print("DEBUG: Reached spawn point. Despawning...")
+			_despawn()
+		return
+	
 	if is_dragging:
 		_drag_player_logic(delta)
 		
@@ -180,6 +248,17 @@ func _handle_logic(delta: float) -> void:
 		current_state = State.IDLE
 		stop_moving()
 
+func _start_return_to_spawn() -> void:
+	is_returning_to_spawn = true
+	player_spotted = false
+	is_searching = false
+	is_waiting = false
+	is_waiting_after_player_left = false
+	get_em_anyway = false
+
+func _despawn() -> void:
+	returned_to_truck.emit()
+	queue_free()
 
 func _drag_player_logic(delta: float) -> void:
 	if player:
@@ -201,7 +280,9 @@ func _stop_searching() -> void:
 	if eye_cast: eye_cast.rotation = Vector3.ZERO
 
 func update_pathfinding_target() -> void:
-	if is_dragging:
+	if is_returning_to_spawn:
+		navigation_agent_3d.target_position = spawn_position
+	elif is_dragging:
 		# Re-fetch dump_marker if it's null (safety check)
 		if not dump_marker:
 			dump_marker = _get_dump_marker()
