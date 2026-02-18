@@ -59,7 +59,7 @@ func start_spawn_sequence() -> void:
 	nav_region.global_position = global_position
 	
 	# 2. Set the filter baking AABB to only bake a 50m radius around this point
-	var bake_aabb = AABB(Vector3(-50, -5, -50), Vector3(100, 10, 100))
+	var bake_aabb = AABB(Vector3(-50, -5, -50), Vector3(100, 7, 100))
 	nav_region.navigation_mesh.filter_baking_aabb = bake_aabb
 	
 	# 3. Ensure the region is enabled
