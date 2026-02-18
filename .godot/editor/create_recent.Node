@@ -1,3 +1,5 @@
+ProgressBar
+Label
 Node3D
 Marker3D
 NavigationRegion3D
@@ -11,4 +13,3 @@ Camera3D
 StaticBody3D
 NavigationObstacle3D
 CSGCombiner3D
-Node

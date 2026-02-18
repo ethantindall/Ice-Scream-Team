@@ -14,10 +14,17 @@ enum PlayerState {
 # --- CONFIG ---
 @export var base_speed: float = 6.0
 @export var sprint_speed: float = 10.0
-@export var acceleration: float = 10.0
+@export var acceleration: float = 5.0
 @export var jump_velocity: float = 4.5
 @export var mouse_sensitivity: float = 0.1
 @export var drag_look_limit := 30.0
+
+# --- STAMINA CONFIG ---
+@export_group("Stamina")
+@export var max_stamina: float = 100.0
+@export var stamina_drain_rate: float = 15.0  # Stamina used per second while sprinting
+@export var stamina_regen_rate: float = 20.0  # Stamina recovered per second
+@export var stamina_regen_delay: float = 1.0  # Delay before stamina starts regenerating after sprinting
 
 const CAM_STAND_HEIGHT := 1.4
 const COLLISION_STAND_HEIGHT := 1.4
@@ -27,6 +34,11 @@ var is_hidden := false
 # --- STATE ---
 var current_state: PlayerState = PlayerState.IDLE
 var immobile: bool = false
+
+# --- STAMINA STATE ---
+var current_stamina: float = max_stamina
+var stamina_regen_timer: float = 0.0
+var can_sprint: bool = true
 
 @onready var player_raycast: RayCast3D = $Camera/RayCast3D
 @onready var item_holder: Node3D = $Camera/ItemHolder
@@ -61,11 +73,15 @@ var PAUSE := "ui_cancel"
 @onready var COLLISION_MESH: CollisionShape3D = $Collision
 @onready var ANIMATIONPLAYER: AnimationPlayer = $AnimationPlayer
 
+# --- SIGNALS ---
+signal stamina_changed(current: float, maximum: float)
+
 
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	CAMERA.position.y = CAM_STAND_HEIGHT
 	floor_snap_length = 0.2
+	current_stamina = max_stamina
 
 
 func _physics_process(delta):
@@ -78,6 +94,7 @@ func _physics_process(delta):
 	var direction = (global_transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 
 	handle_state_logic(input_dir.length() > 0)
+	handle_stamina(delta)
 	handle_movement(delta, direction)
 	update_camera_fov()
 	update_animations()
@@ -109,6 +126,34 @@ func _unhandled_input(event):
 				-60,
 				90
 			)
+
+
+# --- STAMINA ---
+
+func handle_stamina(delta: float):
+	if current_state == PlayerState.SPRINTING:
+		# Drain stamina while sprinting
+		current_stamina -= stamina_drain_rate * delta
+		current_stamina = max(current_stamina, 0.0)
+		stamina_regen_timer = 0.0
+		
+		# Stop sprinting if out of stamina
+		if current_stamina <= 0.0:
+			can_sprint = false
+	else:
+		# Regenerate stamina when not sprinting
+		stamina_regen_timer += delta
+		
+		if stamina_regen_timer >= stamina_regen_delay:
+			current_stamina += stamina_regen_rate * delta
+			current_stamina = min(current_stamina, max_stamina)
+			
+			# Allow sprinting again once stamina is above 20%
+			if current_stamina >= max_stamina * 0.2:
+				can_sprint = true
+	
+	# Emit signal for UI updates
+	stamina_changed.emit(current_stamina, max_stamina)
 
 
 # --- MOVEMENT ---
@@ -152,7 +197,8 @@ func handle_state_logic(moving: bool):
 	else:
 		_set_crouch(false)
 
-	if moving and Input.is_action_pressed("ui_sprint"):
+	# Only allow sprinting if we have stamina
+	if moving and Input.is_action_pressed("ui_sprint") and can_sprint:
 		current_state = PlayerState.SPRINTING
 	elif moving:
 		current_state = PlayerState.WALKING
