@@ -304,10 +304,42 @@ func _on_trigger_area_body_exited(body: Node3D) -> void:
 
 
 func _on_enemy_hunt_finished() -> void:
-	# Reset truck variables so it can drive and look for the player again
+	# 1. Reset flags
 	player_detected = false
 	closest_point_reached = false
 	is_braking = false
 	brake_swerve_state = 0
-	_choose_next_marker() 
-	print("Enemy gone. Truck resuming patrol.")
+	
+	if player_seen_location == Vector3.ZERO:
+		_choose_next_marker()
+		return
+
+	# 2. Find the direction the player went relative to the truck
+	var direction_to_player = (player_seen_location - global_position).normalized()
+	direction_to_player.y = 0
+	
+	# 3. Look at all available paths from the current marker
+	var from_marker = current_target if current_target else previous_marker
+	var options = from_marker.get_connected_markers()
+	
+	var best_marker: RoadMarker = null
+	var best_score: float = -1.0 # Dot product range is -1 to 1
+	
+	for marker in options:
+		var direction_to_marker = (marker.global_position - global_position).normalized()
+		direction_to_marker.y = 0
+		
+		# Dot product tells us how much two vectors point in the same direction
+		# 1.0 = identical, 0.0 = perpendicular, -1.0 = opposite
+		var score = direction_to_player.dot(direction_to_marker)
+		
+		if score > best_score:
+			best_score = score
+			best_marker = marker
+
+	# 4. Commit to the chase
+	if best_marker:
+		current_target = best_marker
+		print("Player went that way. Tracking toward marker: %s" % best_marker.name)
+	else:
+		_choose_next_marker()
