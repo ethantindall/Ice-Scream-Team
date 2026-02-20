@@ -25,7 +25,7 @@ signal fov_changed(value)
 # =====================
 # DAY / NIGHT SETTINGS
 # =====================
-var time_of_day = "NIGHT" # Change to "DAY" or "NIGHT" to test
+var time_of_day = "DAY" # Change to "DAY" or "NIGHT" to test
 
 # Day colors
 static var DAY_SKY_TOP := Color.html("#598dcc")

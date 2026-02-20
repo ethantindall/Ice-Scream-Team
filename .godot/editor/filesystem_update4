@@ -1,13 +1,23 @@
 res://main_map.tscn
 res://Assets/dialogicscripts/New_File.tres
 res://backup ground.tscn
-res://addons/character3D-2f9aa62bbb55e1ac17d277f5008d9df982168336/character.tscn
-res://addons/fpc/character.tscn
-res://addons/fpc/control.gd
-res://addons/fpc/character.gd
-res://components/enemy_spawner_component.gd
-res://Assets/chars/00_completed chars/badguyWithAI.tscn
 res://Assets/ice cream truck/truck_with_ai.tscn
-res://globalscripts/badguy_with_ai.gd
+res://Assets/chars/00_completed chars/badguyWithAI.tscn
 res://Assets/fence/picketfence.tscn
-res://Assets/ice cream truck/truck_with_ai.gd
+res://globalscripts/GameSettings.gd
+res://globalscripts/MasterEventHandler.gd
+res://Assets/dialogicscripts/beanNPCdev.dch
+res://Assets/dialogicscripts/icecreamman.dch
+res://Assets/dialogicscripts/killer.dch
+res://Assets/dialogicscripts/mike.dch
+res://Assets/dialogicscripts/mikemom.dch
+res://Assets/dialogicscripts/mom.dch
+res://Assets/dialogicscripts/mrboone.dch
+res://Assets/dialogicscripts/mrsJenkins.dch
+res://Assets/dialogicscripts/neighborhoodkid.dch
+res://Assets/dialogicscripts/neighborhood_dad.dch
+res://Assets/dialogicscripts/oldmanjenkins.dch
+res://Assets/dialogicscripts/player.dch
+res://Assets/dialogicscripts/police.dch
+res://Assets/dialogicscripts/timmy.dch
+res://Assets/dialogicscripts/DefaultLayoutBase/custom_default_layout_base.tscn

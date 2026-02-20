@@ -35,8 +35,8 @@ func _ready() -> void:
 	# 1. Connect to Dialogic's signal system to listen for events inside timelines
 	Dialogic.signal_event.connect(_on_dialogic_signal)
 	
-	#await get_tree().create_timer(3.0).timeout
-	#DialogicHandler.run("quest_0")
+	await get_tree().create_timer(3.0).timeout
+	DialogicHandler.run("quest_0")
 	
 	
 
