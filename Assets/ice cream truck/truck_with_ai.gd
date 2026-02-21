@@ -5,8 +5,8 @@ class_name IceCreamTruckAI
 @onready var spawner: EnemySpawnerComponent = $EnemySpawnerComponent
 
 @export_group("Movement")
-@export var speed := 5.0
-@export var acceleration := 2.0
+@export var speed := 15.0
+@export var acceleration := 3.0
 @export var steering_speed := 3.0
 @export var arrival_threshold := 1.0
 

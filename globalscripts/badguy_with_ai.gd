@@ -17,7 +17,7 @@ enum State { IDLE, WALKING, SPRINTING, SEARCHING, RETURNING_TO_SPAWN }
 
 # --- SETTINGS ---
 @export var walking_speed: float = 3.0
-@export var running_speed: float = 10.0
+@export var running_speed: float = 7.0
 @export var rotation_speed: float = 10.0
 @export var path_update_interval: float = 0.25 
 @export var force_run: bool = true 

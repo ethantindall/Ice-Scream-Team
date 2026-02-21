@@ -2,13 +2,14 @@ extends CharacterBody3D
 
 # --- ENUMS ---
 enum PlayerState {
-	IDLE,
+	IDLE, 
 	WALKING,
 	SPRINTING,
 	CROUCHING,
 	CROUCHWALK,
-	DRAGGED,
-	DIALOG
+	DRAGGED, # no movement, reduced camera control
+	DIALOG,  # no movement, no looking around, mouse visible
+	SITTING  # no movement, custom look limits handled by furniture
 }
 
 # --- CONFIG ---
@@ -22,9 +23,9 @@ enum PlayerState {
 # --- STAMINA CONFIG ---
 @export_group("Stamina")
 @export var max_stamina: float = 100.0
-@export var stamina_drain_rate: float = 15.0  # Stamina used per second while sprinting
-@export var stamina_regen_rate: float = 20.0  # Stamina recovered per second
-@export var stamina_regen_delay: float = 1.0  # Delay before stamina starts regenerating after sprinting
+@export var stamina_drain_rate: float = 15.0
+@export var stamina_regen_rate: float = 20.0
+@export var stamina_regen_delay: float = 1.0
 
 const CAM_STAND_HEIGHT := 1.4
 const COLLISION_STAND_HEIGHT := 1.4
@@ -33,21 +34,25 @@ var is_hidden := false
 
 # --- STATE ---
 var current_state: PlayerState = PlayerState.IDLE
-var immobile: bool = false
 
 # --- STAMINA STATE ---
 var current_stamina: float = max_stamina
 var stamina_regen_timer: float = 0.0
 var can_sprint: bool = true
 
+
+var forced_look_target: Vector3 = Vector3.ZERO
+var forced_look_speed: float = 5.0
+
+
 @onready var player_raycast: RayCast3D = $Camera/RayCast3D
 @onready var item_holder: Node3D = $Camera/ItemHolder
 @onready var step_climb_component: StepClimbComponent = $StepClimbComponent
 
+# --- SETTERS / GETTERS ---
 var _is_dragging := false
 var is_dragging: bool:
-	get:
-		return _is_dragging
+	get: return _is_dragging
 	set(v):
 		_is_dragging = v
 		current_state = PlayerState.DRAGGED if v else PlayerState.IDLE
@@ -56,16 +61,15 @@ var is_dragging: bool:
 
 var _force_look := false
 var force_look: bool:
-	get:
-		return _force_look
+	get: return _force_look
 	set(v):
 		_force_look = v
 		current_state = PlayerState.DIALOG if v else PlayerState.IDLE
+		# Automatically toggle mouse mode for Dialogs
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if v else Input.MOUSE_MODE_CAPTURED
 
 # --- MISC ---
 var gravity := ProjectSettings.get_setting("physics/3d/default_gravity")
-var forced_look_target: Vector3
-var forced_look_speed := 3.0
 var PAUSE := "ui_cancel"
 
 # --- NODES ---
@@ -76,30 +80,69 @@ var PAUSE := "ui_cancel"
 # --- SIGNALS ---
 signal stamina_changed(current: float, maximum: float)
 
-
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	CAMERA.position.y = CAM_STAND_HEIGHT
 	floor_snap_length = 0.2
 	current_stamina = max_stamina
 
-
 func _physics_process(delta):
+	# --- 1. STATE GATE (DIALOG, SITTING, DRAGGED) ---
+	if current_state in [PlayerState.DIALOG, PlayerState.DRAGGED, PlayerState.SITTING]:
+		# Apply gravity so we don't float
+		if not is_on_floor():
+			velocity.y -= gravity * delta
+		else:
+			velocity.y = 0
+			
+		velocity.x = 0
+		velocity.z = 0
+		move_and_slide()
+		
+		# --- DIALOG SPECIFIC: Smooth Look-at Logic ---
+		if current_state == PlayerState.DIALOG and forced_look_target != Vector3.ZERO:
+			# A. Rotate the Body (Yaw - Left/Right)
+			# We keep the Y position the same as the player so the body doesn't tilt up/down
+			var target_pos_body = Vector3(forced_look_target.x, global_position.y, forced_look_target.z)
+			var body_look_transform = global_transform.looking_at(target_pos_body, Vector3.UP)
+			global_transform.basis = global_transform.basis.slerp(body_look_transform.basis, forced_look_speed * delta)
+			
+			# B. Rotate the Camera (Pitch - Up/Down)
+			# This makes the "eyes" actually look at the NPC face marker
+			var cam_look_transform = CAMERA.global_transform.looking_at(forced_look_target, Vector3.UP)
+			CAMERA.global_transform.basis = CAMERA.global_transform.basis.slerp(cam_look_transform.basis, forced_look_speed * delta)
+			
+			# C. Clean up Camera rotation (Prevent tilt/roll)
+			CAMERA.rotation.z = 0
+			CAMERA.rotation.y = 0 # The Body rotation above handles the Y axis
+		
+		# Allow stamina to regen while sitting or dragged
+		if current_state != PlayerState.DIALOG:
+			handle_stamina(delta)
+			
+		update_animations()
+		return # STOP here: do not process normal movement input
+
+	# --- 2. NORMAL MOVEMENT PHYSICS ---
+	
+	# Apply Gravity
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 
+	# Handle Jumping
 	handle_jumping()
 
+	# Get Input Direction
 	var input_dir = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	var direction = (global_transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 
+	# Run standard movement modules
 	handle_state_logic(input_dir.length() > 0)
 	handle_stamina(delta)
 	handle_movement(delta, direction)
 	update_camera_fov()
 	update_animations()
-
-
+	
 # --- INPUT ---
 
 func _unhandled_input(event):
@@ -109,6 +152,14 @@ func _unhandled_input(event):
 			if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 			else Input.MOUSE_MODE_CAPTURED
 		)
+
+	# Block look controls during Dialog
+	if current_state == PlayerState.DIALOG:
+		return
+
+	# Sitting look controls are handled by the Chair script directly
+	if current_state == PlayerState.SITTING:
+		return
 
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		if current_state == PlayerState.DRAGGED:
@@ -120,6 +171,7 @@ func _unhandled_input(event):
 			var pitch = CAMERA.rotation_degrees.x - event.relative.y * mouse_sensitivity
 			CAMERA.rotation_degrees.x = clamp(pitch, -110, -70)
 		else:
+			# Normal Look
 			rotation_degrees.y -= event.relative.x * mouse_sensitivity
 			CAMERA.rotation_degrees.x = clamp(
 				CAMERA.rotation_degrees.x - event.relative.y * mouse_sensitivity,
@@ -127,34 +179,24 @@ func _unhandled_input(event):
 				90
 			)
 
-
 # --- STAMINA ---
 
 func handle_stamina(delta: float):
 	if current_state == PlayerState.SPRINTING:
-		# Drain stamina while sprinting
 		current_stamina -= stamina_drain_rate * delta
 		current_stamina = max(current_stamina, 0.0)
 		stamina_regen_timer = 0.0
-		
-		# Stop sprinting if out of stamina
 		if current_stamina <= 0.0:
 			can_sprint = false
 	else:
-		# Regenerate stamina when not sprinting
 		stamina_regen_timer += delta
-		
 		if stamina_regen_timer >= stamina_regen_delay:
 			current_stamina += stamina_regen_rate * delta
 			current_stamina = min(current_stamina, max_stamina)
-			
-			# Allow sprinting again once stamina is above 20%
 			if current_stamina >= max_stamina * 0.2:
 				can_sprint = true
 	
-	# Emit signal for UI updates
 	stamina_changed.emit(current_stamina, max_stamina)
-
 
 # --- MOVEMENT ---
 
@@ -178,7 +220,6 @@ func handle_movement(delta, direction: Vector3):
 
 	move_and_slide()
 
-
 func handle_jumping():
 	if Input.is_action_pressed("ui_jump") and is_on_floor() and current_state != PlayerState.CROUCHING:
 		velocity.y = jump_velocity
@@ -186,10 +227,13 @@ func handle_jumping():
 	else:
 		floor_snap_length = 0.2
 
-
 # --- STATE LOGIC ---
 
 func handle_state_logic(moving: bool):
+	# Protect manual states from being overwritten by movement logic
+	if current_state in [PlayerState.SITTING, PlayerState.DIALOG, PlayerState.DRAGGED]:
+		return
+
 	if Input.is_action_pressed("ui_crouch"):
 		current_state = PlayerState.CROUCHWALK if moving else PlayerState.CROUCHING
 		_set_crouch(true)
@@ -197,14 +241,12 @@ func handle_state_logic(moving: bool):
 	else:
 		_set_crouch(false)
 
-	# Only allow sprinting if we have stamina
 	if moving and Input.is_action_pressed("ui_sprint") and can_sprint:
 		current_state = PlayerState.SPRINTING
 	elif moving:
 		current_state = PlayerState.WALKING
 	else:
 		current_state = PlayerState.IDLE
-
 
 func _set_crouch(active: bool):
 	var target_cam_height = 0.8 if active else CAM_STAND_HEIGHT
@@ -217,7 +259,6 @@ func _set_crouch(active: bool):
 	if capsule:
 		tween.tween_property(capsule, "height", target_h, 0.15)
 		tween.tween_property(COLLISION_MESH, "position:y", target_h / 2.0, 0.15)
-
 
 # --- VISUALS ---
 
@@ -234,9 +275,16 @@ func update_animations():
 			ANIMATIONPLAYER.play("CrouchWalk")
 		PlayerState.CROUCHING:
 			ANIMATIONPLAYER.play("CrouchIdle")
+		PlayerState.DIALOG:
+			ANIMATIONPLAYER.play("idle3")
+		PlayerState.SITTING:
+			# Play specific sit/idle if you have them, otherwise default idle
+			if ANIMATIONPLAYER.has_animation("Sitting"):
+				ANIMATIONPLAYER.play("Sitting")
+			else:
+				ANIMATIONPLAYER.play("idle3")
 		_:
 			ANIMATIONPLAYER.play("idle3")
-
 
 func update_camera_fov():
 	var target_fov = 65.0 if current_state == PlayerState.SPRINTING else 55.0

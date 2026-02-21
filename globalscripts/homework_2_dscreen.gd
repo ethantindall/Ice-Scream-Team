@@ -2,13 +2,22 @@ extends Node2D
 
 @onready var _lines: Node2D = $Line2D
 @onready var _background: Sprite2D = $Background
-@onready var _draw_area: Area2D = $Paper/Area2D   # Area2D with CollisionShape2D
+@onready var _draw_area: Area2D = $Paper/Area2D 
 
 var _pressed: bool = false
 var _current_line: Line2D = null
 
 func _ready() -> void:
-	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	# 1. Find the player and lock them into DIALOG state
+	var player = get_tree().get_first_node_in_group("player") as CharacterBody3D
+	if player:
+		# This freezes movement and enables the mouse cursor automatically
+		player.force_look = true
+		
+		# Hide the 3D HUD while doing homework
+		var canvas_layer = player.get_node_or_null("CanvasLayer")
+		if canvas_layer:
+			canvas_layer.visible = false
 
 func _input(event: InputEvent) -> void:
 	# Exit homework (E / ui_drop)
@@ -16,7 +25,7 @@ func _input(event: InputEvent) -> void:
 		exit_homework()
 		return
 
-	# Drawing input
+	# Drawing logic
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		_pressed = event.pressed
 		if _pressed:
@@ -34,27 +43,30 @@ func _input(event: InputEvent) -> void:
 			_current_line.add_point(mouse_pos)
 
 func exit_homework():
-	# 1️⃣ Switch back to 3D scene
-	#SceneManager.load_scene("res://scenes/3d_scene.tscn")
-	# 2️⃣ Re-enable player nodes
+	# 1. Get player reference
+	var player = get_tree().get_first_node_in_group("player") as CharacterBody3D
 	
-	DialogicHandler.run("quest_2")
-
-	for player in get_tree().get_nodes_in_group("player"):
-
+	if player:
+		# Show the HUD/Canvas again
 		var canvas_layer = player.get_node_or_null("CanvasLayer")
 		if canvas_layer:
 			canvas_layer.visible = true
+		
+		# Ensure processing is active for the coming dialogue
+		player.set_process(true)
+		player.set_physics_process(true)
 
-	
-	# 3️⃣ Optional: unload the 2D homework scene
+	# 2. Run the dialogue
+	# DialogicHandler.run will keep force_look = true, 
+	# keeping the player frozen and mouse visible.
+	DialogicHandler.run("quest_2")
+
+	# 3. Unload the 2D homework scene
 	SceneManager.unload_scene("res://2Dscenes/homework2dscreen.tscn")
 
-	# 4️⃣ Recapture the mouse for 3D control
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	# Note: We do NOT set mouse mode to CAPTURED here. 
+	# The DialogicHandler/Player script will do that once the timeline ends.
 
-
-# Godot 4 proper way: use PhysicsPointQueryParameters2D
 func _is_inside_draw_area(point: Vector2) -> bool:
 	var space_state = get_world_2d().direct_space_state
 	var query = PhysicsPointQueryParameters2D.new()

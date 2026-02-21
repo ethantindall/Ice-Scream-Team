@@ -2,10 +2,8 @@ extends Node
 
 var player: CharacterBody3D
 var is_running: bool = false 
-var label_original_text: String = ""
-var arrow
+var arrow: Node3D # Assuming Arrow is a 3D node, change type if it's 2D
 var arrow_original_visible: bool = false
-
 
 func _ready() -> void:
 	# Connect signals once
@@ -26,26 +24,30 @@ func run(timeline_name: String):
 	# 3. Setup State
 	is_running = true
 	
-	arrow = player.get_node("Camera/Arrow")
-	arrow_original_visible = arrow.visible
-	arrow.visible = false
-
+	# Handle the Arrow visibility safely
 	if player:
-		player.immobile = true 
-	
-	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		arrow = player.get_node_or_null("Camera/Arrow")
+		if arrow:
+			arrow_original_visible = arrow.visible
+			arrow.visible = false
+
+		# --- UPDATED: Use force_look instead of immobile ---
+		# This automatically sets state to DIALOG and shows the mouse
+		player.force_look = true 
 
 	# 4. Start the dialogue
-	# Dialogic 2 handles finding the .dtl file by name automatically
 	Dialogic.start(timeline_name)
 
 func _on_timeline_ended() -> void:
 	if player:
-		player.immobile = false
+		# --- UPDATED: Use force_look instead of immobile ---
+		# This automatically sets state back to IDLE and captures the mouse
+		player.force_look = false
+		
+		# Restore Arrow visibility
+		if arrow:
+			arrow.visible = arrow_original_visible
 	
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	
+	# Small delay to ensure inputs don't bleed through to the game frame
 	await get_tree().process_frame
 	is_running = false
-	# REMOVE OR COMMENT OUT THIS LINE:
-	arrow.visible = arrow_original_visible
