@@ -65,9 +65,15 @@ var force_look: bool:
 	set(v):
 		_force_look = v
 		current_state = PlayerState.DIALOG if v else PlayerState.IDLE
-		# Automatically toggle mouse mode for Dialogs
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if v else Input.MOUSE_MODE_CAPTURED
+		
+		# ADD THIS: Reset the target so we don't "remember" the last NPC
+		if v == false:
+			forced_look_target = Vector3.ZERO
+			
+		if is_inside_tree():
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if v else Input.MOUSE_MODE_CAPTURED
 
+			
 # --- MISC ---
 var gravity := ProjectSettings.get_setting("physics/3d/default_gravity")
 var PAUSE := "ui_cancel"

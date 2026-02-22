@@ -25,7 +25,7 @@ signal fov_changed(value)
 # =====================
 # DAY / NIGHT SETTINGS
 # =====================
-var time_of_day = "NIGHT" # Change to "DAY" or "NIGHT" to test
+var time_of_day = "DAY" # Change to "DAY" or "NIGHT" to test
 
 # Day colors
 static var DAY_SKY_TOP := Color.html("#598dcc")
@@ -33,7 +33,8 @@ static var DAY_SKY_HORIZON := Color.html("#c5a195")
 static var DAY_GROUND_TOP := Color.html("#66594d")
 static var DAY_GROUND_BOTTOM := Color.html("#33332a")
 static var DAY_CURVE = 0.1
-static var DAY_LIGHT_ENERGY = 1.0
+static var DAY_LIGHT_ENERGY = 3.0
+static var DAY_LIGHT_COLOR := Color.html("#ba9d81")
 
 # Night colors
 static var NIGHT_SKY_TOP := Color.html("#000000")
@@ -42,6 +43,7 @@ static var NIGHT_GROUND_HORIZON := Color.html("#000000")
 static var NIGHT_GROUND_BOTTOM := Color.html("#000000")
 static var NIGHT_CURVE = 0.1
 static var NIGHT_LIGHT_ENERGY = .2
+static var NIGHT_LIGHT_COLOR := Color.html("#c3c3c3")
 
 func _ready():
 	apply_video_settings()
@@ -116,10 +118,13 @@ func apply_time_of_day():
 			for star in get_tree().get_nodes_in_group("sunmoon"):
 				star.light_energy = DAY_LIGHT_ENERGY
 				star.rotation.x = deg_to_rad(-15) 
+				star.light_color = DAY_LIGHT_COLOR
 		else:
 			for star in get_tree().get_nodes_in_group("sunmoon"):
 				star.light_energy = NIGHT_LIGHT_ENERGY
 				star.rotation.x = deg_to_rad(-60)
+				star.light_color = NIGHT_LIGHT_COLOR
+
 			sky.sky_top_color = NIGHT_SKY_TOP
 			sky.sky_horizon_color = NIGHT_SKY_HORIZON
 			sky.ground_bottom_color = NIGHT_GROUND_BOTTOM
@@ -127,9 +132,7 @@ func apply_time_of_day():
 			sky.sky_curve = NIGHT_CURVE
 			env.volumetric_fog_enabled = true
 			env.fog_enabled = false
-			#for truck in get_tree().get_nodes_in_group("ice_cream_truck"):
-			#	truck.get_node("Lights").lights_on = true
-			#	truck.get_node("Lights")._update_lights()
+
 			
 	# --- Population (Folder) Logic ---
 	print("Sky changed. Updating population groups: daytime_folder, nighttime_folder")

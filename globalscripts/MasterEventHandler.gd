@@ -146,7 +146,6 @@ func _trigger_drive_by(truckname) -> void:
 		var original_forward_point = player.CAMERA.global_position - player.CAMERA.global_transform.basis.z * 10.0
 		trucknode.is_driving = true
 		
-		# UPDATED: Use force_look to lock player movement and head
 		player.force_look = true
 		
 		var marker = trucknode.find_child("TruckMarker", true, false)

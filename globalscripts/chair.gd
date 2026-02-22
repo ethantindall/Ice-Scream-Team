@@ -12,6 +12,8 @@ var current_pitch: float = 0.0
 var is_sitting = false
 var player: CharacterBody3D = null
 
+@onready var sit_point: Marker3D = $SitPoint
+
 func get_display_text():
 	if disabled: return ""
 	return item_name
@@ -26,7 +28,7 @@ func sit_down():
 	if chair_col: chair_col.disabled = true
 
 	# 1. Snap player body to chair position and rotation
-	player.global_position = global_transform.origin + Vector3(0, 0.5, 0)
+	player.global_position = sit_point.global_position + Vector3(0, 0.5, 0)
 	player.global_rotation.y = global_rotation.y + PI
 	
 	# 2. Reset tracking offsets

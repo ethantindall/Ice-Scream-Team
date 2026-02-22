@@ -9,9 +9,8 @@ func _ready() -> void:
 	# Connect signals once
 	Dialogic.timeline_ended.connect(_on_timeline_ended)
 
-func run(timeline_name: String):
+func run(timeline_name: String, force_look = true):
 	player = get_tree().get_first_node_in_group("player") as CharacterBody3D
-
 	# 1. Busy check
 	if is_running:
 		return
@@ -33,7 +32,7 @@ func run(timeline_name: String):
 
 		# --- UPDATED: Use force_look instead of immobile ---
 		# This automatically sets state to DIALOG and shows the mouse
-		player.force_look = true 
+		player.force_look = force_look 
 
 	# 4. Start the dialogue
 	Dialogic.start(timeline_name)

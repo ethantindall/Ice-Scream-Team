@@ -24,16 +24,18 @@ func climb():
 	var player = get_tree().get_first_node_in_group("player")
 	if not player or climbing:
 		return
-
+	
 	climbing = true
 	var path: Path3D = $Path3D
 	var path_follow := PathFollow3D.new()
 	path.add_child(path_follow)
 	path_follow.rotation_mode = PathFollow3D.ROTATION_NONE
-
+	
 	if player is CharacterBody3D:
 		player.set_physics_process(false)
 
+	#play player animation player CrawlFront
+	player.get_node("AnimationPlayer").play("Crawling Front")
 	var tween = create_tween()
 
 	# tween_method(method_to_call, start_value, end_value, duration)
