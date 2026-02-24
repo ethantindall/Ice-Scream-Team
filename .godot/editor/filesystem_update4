@@ -1,16 +1,10 @@
-res://testAI.tscn
+res://globalscripts/door_script.gd
+res://Assets/gazebo/gazebo.tscn
 res://Assets/dialogicscripts/New_File.tres
 res://main_map.tscn
-res://Assets/sofa/sofa.tscn
-res://Assets/texture/couch.tscn
-res://Assets/beanbag.tscn
-res://globalscripts/GameSettings.gd
-res://timmys_house.tscn
-res://Assets/fridge.tscn
-res://Assets/g pack/big pack.tscn
-res://Assets/ladder/ladder.tscn
-res://Assets/ladder/ladder.gd
+res://Assets/merry go round/merry_go_round.tscn
+res://mikes_house.tscn
+res://Assets/chars/00_completed chars/goth_girl.tscn
 res://addons/fpc/character.tscn
-res://globalscripts/doghouse.gd
-res://Assets/trashcan/trashcan.tscn
-res://Assets/doghouse/doghouse.tscn
+res://Assets/chars/00_completed chars/badguyWithAI.tscn
+res://Assets/beanbag.tscn

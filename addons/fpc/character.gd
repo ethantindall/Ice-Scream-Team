@@ -122,9 +122,8 @@ func _physics_process(delta):
 			CAMERA.rotation.z = 0
 			CAMERA.rotation.y = 0 # The Body rotation above handles the Y axis
 		
-		# Allow stamina to regen while sitting or dragged
-		if current_state != PlayerState.DIALOG:
-			handle_stamina(delta)
+		# Allow stamina to regen while sitting or dragged or dialog
+		handle_stamina(delta)
 			
 		update_animations()
 		return # STOP here: do not process normal movement input

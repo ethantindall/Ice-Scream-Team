@@ -23,6 +23,11 @@ extends Node3D
 @export var turn_right_anim := "animations/Turn Right"
 @export var turn_left_anim := "animations/Turn Left"
 @export var idle_animation := "animations/idle3"
+@export var walk_animation := "animations/Walk"
+
+@export_group("Pathing")
+@export var walk_path: Path3D = null
+@export var walk_speed := 1.5
 
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 @onready var npc_face: Marker3D = $FaceMarker
@@ -36,32 +41,96 @@ var _previous_animation := ""
 var _is_turning_to_player := false
 var _is_turning_back := false
 
+var _path_follow: PathFollow3D = null
+var _is_walking_path := false
+
+func _ready():
+	if npc_type == "MikeMom" and MasterEventHandler.mikeMomAtMikeHouse == null:
+		MasterEventHandler.mikeMomAtMikeHouse = self
+
+
 func get_display_text():
 	return item_name
 
+func walk_along_path():
+	if walk_path == null:
+		printerr("NPC: No Path3D assigned to walk_path.")
+		return
+
+	_is_turning_to_player = false
+	_is_turning_back = false
+	_path_follow = PathFollow3D.new()
+	_path_follow.loop = false
+	_path_follow.rotation_mode = PathFollow3D.ROTATION_ORIENTED
+	walk_path.add_child(_path_follow)
+	_path_follow.progress = 0.0
+
+	# Snap NPC to start of path
+	global_position = _path_follow.global_position
+	
+	_is_walking_path = true
+	animation_player.play(walk_animation)
+
+func _process(delta):
+	# Path following
+	if _is_walking_path and _path_follow != null:
+		_path_follow.progress += walk_speed * delta
+		global_position = _path_follow.global_position
+
+		# Face direction of travel
+		var forward = _path_follow.global_transform.basis.z
+		if forward.length() > 0.1:
+			_target_yaw = atan2(forward.x, forward.z)
+			global_rotation.y = _path_follow.global_rotation.y + PI
+
+		# Check if reached the end
+		if _path_follow.progress >= walk_path.curve.get_baked_length():
+			print("Path finished.")
+			_is_walking_path = false
+			_path_follow.queue_free()
+			_path_follow = null
+			animation_player.play(idle_animation)
+		return  # skip turn logic while walking path
+
+	# NPC turn to player / turn back logic
+	if _is_turning_to_player or _is_turning_back:
+		var new_yaw := lerp_angle(global_rotation.y, _target_yaw, turn_speed * delta)
+		global_rotation.y = new_yaw
+
+		if abs(wrapf(new_yaw - _target_yaw, -PI, PI)) < 0.01:
+			global_rotation.y = _target_yaw
+
+			var next_anim = idle_animation
+			if _is_turning_back:
+				next_anim = _previous_animation
+
+			_is_turning_to_player = false
+			_is_turning_back = false
+
+			if animation_player.has_animation(next_anim):
+				animation_player.play(next_anim)
+
 func talk_to():
-	# 1. Use the Handler's busy check
 	if DialogicHandler.is_running:
 		return
 
-	# 2. Determine which dialog to play
 	var dialog_to_play = _get_current_dialog_from_handler()
 	if dialog_to_play == "":
 		return
 
-	# 3. Handle NPC-Specific Player Focus
+	# Pause path walking if active
+	_is_walking_path = false
+
 	_player_ref = get_tree().get_first_node_in_group("player") as CharacterBody3D
 	if _player_ref:
 		_player_ref.force_look = true
 		_player_ref.forced_look_target = npc_face.global_position
 
-	# 4. Save animation & rotation state
 	_original_yaw = global_rotation.y
 	_previous_animation = animation_player.current_animation
 	if _previous_animation == "":
 		_previous_animation = idle_animation
 
-	# 5. Calculate yaw toward player in global/world space
 	var dir_to_player := (_player_ref.global_position - global_position).normalized()
 	_target_yaw = atan2(dir_to_player.x, dir_to_player.z)
 
@@ -74,11 +143,9 @@ func talk_to():
 	if animation_player.has_animation(_turn_animation_name):
 		animation_player.play(_turn_animation_name)
 
-	# 6. Connect to end signal LOCALLY
 	if not Dialogic.timeline_ended.is_connected(_on_timeline_ended):
 		Dialogic.timeline_ended.connect(_on_timeline_ended)
 
-	# 7. Run dialog
 	DialogicHandler.run(dialog_to_play)
 
 func _get_current_dialog_from_handler() -> String:
@@ -98,25 +165,17 @@ func _get_current_dialog_from_handler() -> String:
 		"Police Officer": next_convo = MasterEventHandler.police_officer_next_convo
 	return next_convo
 
-func _process(delta):
-	if _is_turning_to_player or _is_turning_back:
-		var new_yaw := lerp_angle(global_rotation.y, _target_yaw, turn_speed * delta)
-		global_rotation.y = new_yaw
-
-		if abs(wrapf(new_yaw - _target_yaw, -PI, PI)) < 0.01:
-			global_rotation.y = _target_yaw
-
-			var next_anim = idle_animation
-			if _is_turning_back:
-				next_anim = _previous_animation
-
-			_is_turning_to_player = false
-			_is_turning_back = false
-
-			if animation_player.has_animation(next_anim):
-				animation_player.play(next_anim)
-
 func _on_timeline_ended():
+	# 1. Disconnect first so this doesn't fire multiple times
+	if Dialogic.timeline_ended.is_connected(_on_timeline_ended):
+		Dialogic.timeline_ended.disconnect(_on_timeline_ended)
+
+	# 2. THE FIX: If we started walking via a Dialogic event, 
+	# stop the "turn back to player" logic from running.
+	if _is_walking_path:
+		return 
+
+	# 3. Normal cleanup if we aren't walking
 	if _player_ref:
 		_player_ref.force_look = false
 		_player_ref = null
@@ -130,6 +189,3 @@ func _on_timeline_ended():
 
 	if animation_player.has_animation(_turn_animation_name):
 		animation_player.play(_turn_animation_name)
-
-	if Dialogic.timeline_ended.is_connected(_on_timeline_ended):
-		Dialogic.timeline_ended.disconnect(_on_timeline_ended)

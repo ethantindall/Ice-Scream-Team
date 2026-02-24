@@ -6,7 +6,7 @@ var mom_next_convo: String = "quest_1"
 var boone_next_convo: String = "talk_to_boone_1"
 var icm_next_convo: String = "quest_4"
 var mike_next_convo: String = "mikes_house_2"
-var mike_mom_next_convo: String = ""
+var mike_mom_next_convo: String = "mikes_house_1"
 var killer_next_convo: String = "killer_0"
 var omj_next_convo: String = "jenkins_1"
 var neighborhood_kid_next_convo: String = "neighborhoodkid_1"
@@ -22,10 +22,15 @@ var homeworkLabel = ""
 
 var mikeFrontDoor: Node3D = null
 var beanbagAtMikeHouse: Node3D = null
+var mikeMomAtMikeHouse: Node3D = null
+var playerInitialPosition: Vector3 = Vector3(431, 4, 399)
+
 
 func _ready() -> void:
 	player = get_tree().get_first_node_in_group("player") as CharacterBody3D
-			
+	#player.global_position = playerInitialPosition
+
+
 	# Connect to Dialogic's signal system
 	Dialogic.signal_event.connect(_on_dialogic_signal)
 	
@@ -92,7 +97,8 @@ func _on_dialogic_signal(argument: String) -> void:
 			arrow.set_physics_process(false)
 			mike_mom_next_convo = ""
 			GoalManager.update_quest("Talk to Mike.")
-			
+			mikeMomAtMikeHouse.walk_along_path()
+
 		"mikes_house_2_end":
 			mike_next_convo = ""
 			GoalManager.update_quest("Sit on the beanbag and play.")
