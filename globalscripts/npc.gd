@@ -29,6 +29,9 @@ extends Node3D
 @export var walk_path: Path3D = null
 @export var walk_speed := 1.5
 
+@export_group("Dialogic")
+@export var turn_towards_player_on_dialog := true
+
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 @onready var npc_face: Marker3D = $FaceMarker
 
@@ -126,22 +129,23 @@ func talk_to():
 		_player_ref.force_look = true
 		_player_ref.forced_look_target = npc_face.global_position
 
-	_original_yaw = global_rotation.y
-	_previous_animation = animation_player.current_animation
-	if _previous_animation == "":
-		_previous_animation = idle_animation
+	if turn_towards_player_on_dialog and _player_ref:
+		_original_yaw = global_rotation.y
+		_previous_animation = animation_player.current_animation
+		if _previous_animation == "":
+			_previous_animation = idle_animation
 
-	var dir_to_player := (_player_ref.global_position - global_position).normalized()
-	_target_yaw = atan2(dir_to_player.x, dir_to_player.z)
+		var dir_to_player := (_player_ref.global_position - global_position).normalized()
+		_target_yaw = atan2(dir_to_player.x, dir_to_player.z)
 
-	var delta_yaw := wrapf(_target_yaw - global_rotation.y, -PI, PI)
-	_turn_animation_name = turn_right_anim if delta_yaw >= 0.0 else turn_left_anim
+		var delta_yaw := wrapf(_target_yaw - global_rotation.y, -PI, PI)
+		_turn_animation_name = turn_right_anim if delta_yaw >= 0.0 else turn_left_anim
 
-	_is_turning_to_player = true
-	_is_turning_back = false
+		_is_turning_to_player = true
+		_is_turning_back = false
 
-	if animation_player.has_animation(_turn_animation_name):
-		animation_player.play(_turn_animation_name)
+	#if animation_player.has_animation(_turn_animation_name):
+	#	animation_player.play(_turn_animation_name)
 
 	if not Dialogic.timeline_ended.is_connected(_on_timeline_ended):
 		Dialogic.timeline_ended.connect(_on_timeline_ended)
@@ -180,12 +184,13 @@ func _on_timeline_ended():
 		_player_ref.force_look = false
 		_player_ref = null
 
-	_target_yaw = _original_yaw
-	var delta_yaw := wrapf(_target_yaw - global_rotation.y, -PI, PI)
-	_turn_animation_name = turn_right_anim if delta_yaw >= 0.0 else turn_left_anim
+	if turn_towards_player_on_dialog:
+		_target_yaw = _original_yaw
+		var delta_yaw := wrapf(_target_yaw - global_rotation.y, -PI, PI)
+		_turn_animation_name = turn_right_anim if delta_yaw >= 0.0 else turn_left_anim
 
-	_is_turning_back = true
-	_is_turning_to_player = false
+		_is_turning_back = true
+		_is_turning_to_player = false
 
 	if animation_player.has_animation(_turn_animation_name):
 		animation_player.play(_turn_animation_name)

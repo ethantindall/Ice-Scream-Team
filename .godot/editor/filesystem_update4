@@ -1,10 +1,13 @@
-res://globalscripts/door_script.gd
-res://Assets/gazebo/gazebo.tscn
-res://Assets/dialogicscripts/New_File.tres
 res://main_map.tscn
-res://Assets/merry go round/merry_go_round.tscn
-res://mikes_house.tscn
-res://Assets/chars/00_completed chars/goth_girl.tscn
-res://addons/fpc/character.tscn
-res://Assets/chars/00_completed chars/badguyWithAI.tscn
-res://Assets/beanbag.tscn
+res://Assets/dialogicscripts/New_File.tres
+res://Assets/bikes/bike_1.tscn
+res://Assets/bikes/bike_3.tscn
+res://Assets/bikes/bike_2.tscn
+res://Assets/lawnmower.tscn
+res://Assets/balls/soccer_goal.tscn
+res://backup ground.tscn
+res://Assets/plants/tree_01_3.tscn
+res://Assets/balls/basketball_hoop.tscn
+res://Assets/balls/basketball_court.tscn
+res://Assets/plants/tree_randomizer.tscn
+res://Assets/shed/garden_shed.tscn

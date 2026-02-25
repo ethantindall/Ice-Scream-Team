@@ -15,7 +15,7 @@ var target_rotation: float = 0.0
 var closed_rotation: float = 0.0
 var _is_interacting: bool = false 
 
-var sfx_knock = preload("res://Assets/sounds/doorknock.wav")
+var sfx_knock = preload("res://Assets/sounds/doorknock.mp3")
 var sfx_rattle = preload("res://Assets/sounds/doorlocked.mp3")
 var sfx_open = preload("res://Assets/sounds/dooropen.mp3")
 
