@@ -113,13 +113,14 @@ func _process(delta):
 			if animation_player.has_animation(next_anim):
 				animation_player.play(next_anim)
 
-func talk_to():
+func talk_to(optional_timeline = ""):
 	if DialogicHandler.is_running:
 		return
-
-	var dialog_to_play = _get_current_dialog_from_handler()
-	if dialog_to_play == "":
-		return
+	var dialog_to_play = ""
+	if optional_timeline == "":
+		dialog_to_play = _get_current_dialog_from_handler()
+	else:
+		dialog_to_play = optional_timeline
 
 	# Pause path walking if active
 	_is_walking_path = false

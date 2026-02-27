@@ -48,6 +48,7 @@ directories/dch_directory={
 }
 directories/dtl_directory={
 "boone_filler": "res://Assets/dialogicscripts/boone_filler.dtl",
+"chock_block_inspect": "res://Assets/dialogicscripts/chock_block_inspect.dtl",
 "demo_done": "res://Assets/dialogicscripts/demo_done.dtl",
 "icm_filler_1": "res://Assets/dialogicscripts/icm_filler_1.dtl",
 "jenkins_1": "res://Assets/dialogicscripts/jenkins_1.dtl",

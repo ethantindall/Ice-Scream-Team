@@ -25,6 +25,7 @@ var beanbagAtMikeHouse: Node3D = null
 var mikeMomAtMikeHouse: Node3D = null
 var playerInitialPosition: Vector3 = Vector3(431, 4, 399)
 
+var remaining_chock_blocks = 2
 
 func _ready() -> void:
 	player = get_tree().get_first_node_in_group("player") as CharacterBody3D
@@ -134,6 +135,12 @@ func _on_dialogic_signal(argument: String) -> void:
 				# Using the DRAGGED state we created in the player script
 				player.current_state = player.PlayerState.DRAGGED
 
+		"move_boones_car":
+			print("Moving Boone's car...")
+			var boones_car = get_tree().current_scene.find_child("Boones Car", true, false)
+			if boones_car:
+				boones_car.follow_path()
+
 # --- Helper Functions ---
 
 func _trigger_drive_by(truckname) -> void:
@@ -173,6 +180,13 @@ func _trigger_drive_by(truckname) -> void:
 		follower.progress_ratio = 0.4
 		trucknode.speed = 6.0
 
+
+
+func update_chock_block_counter():
+	remaining_chock_blocks -=1
+	print("Chock blocks remaining: ", remaining_chock_blocks)
+	if remaining_chock_blocks <= 0:
+		_on_dialogic_signal("move_boones_car")
 
 func _trigger_drive_by2(truckname, should_force_look, wait_for_truck, cleanup, truckspeed, trigger_end_game) -> void:
 	var trucknode = get_tree().current_scene.find_child(truckname, true, false)

@@ -76,6 +76,9 @@ func _input(event):
 		if interactable_node and interactable_node.has_method("open_computer"):
 			interactable_node.open_computer()
 
+		if interactable_node and interactable_node.has_method("interact"):
+			interactable_node.interact()
+
 		if interactable_node and interactable_node.has_method("talk_to"):
 			interactable_node.talk_to()
 
