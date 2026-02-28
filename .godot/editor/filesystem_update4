@@ -6,4 +6,7 @@ res://testAI.tscn
 res://Assets/fence/woodengate.tscn
 res://Assets/padlock/padlock.tscn
 res://addons/fpc/character.tscn
+res://Assets/doghouse/doghouse.tscn
+res://addons/fpc/ray_cast_3d.gd
 res://globalscripts/doghouse.gd
+res://Assets/trashcan/hidable_trashcan.tscn

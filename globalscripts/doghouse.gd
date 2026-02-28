@@ -25,6 +25,9 @@ var sfx_hide: AudioStream = null
 @onready var player: CharacterBody3D = get_tree().get_first_node_in_group("player") as CharacterBody3D
 @onready var collision_shape = player.get_node_or_null("Collision") if player else null
 @onready var badguy: CharacterBody3D = get_tree().get_first_node_in_group("badguy") as CharacterBody3D
+@onready var player_blinder = player.get_node_or_null("CanvasLayer/Control/Blinder") if player else null
+@onready var player_sprint_bar = player.get_node_or_null("CanvasLayer/Control/Label") if player else null
+
 
 # SFX Assets
 var sfx_trashcan = preload("res://Assets/sounds/trashcan.mp3")
@@ -65,7 +68,17 @@ func hide_enter():
 		push_warning("Player not found")
 		return
 
+	#set player blinder alpha to 0
+	player_blinder.modulate.a = 0.0
+	player_blinder.visible = true
+	#use a tween to fade in the blinder over 0.5 seconds
+	var tween = create_tween()
+	tween.tween_property(player_blinder, "modulate:a", 1, 0.25)
+	await tween.finished
+
+
 	player.visible = false
+
 	player.set_physics_process(false)
 	if collision_shape:
 		collision_shape.disabled = true
@@ -74,6 +87,7 @@ func hide_enter():
 		push_warning("Player Collision node not found, raycast may still hit player")
 
 	player.is_hidden = true
+	player_sprint_bar.visible = false
 	player_hidden_here = true
 	_camera_ready = false
 
@@ -97,6 +111,11 @@ func hide_enter():
 		for sound in sfx_steps:
 			play_sfx(sound)
 			await get_tree().create_timer(sound.get_length()).timeout
+
+	var tween2 = create_tween()
+	tween2.tween_property(player_blinder, "modulate:a", 0.0, 0.25)
+	await tween2.finished
+	player_blinder.visible = false
 
 			
 func _physics_process(delta):
@@ -146,6 +165,14 @@ func hide_exit():
 	if not player:
 		return
 
+	#set player blinder alpha to 0
+	player_blinder.modulate.a = 0.0
+	player_blinder.visible = true
+	#use a tween to fade in the blinder over 0.5 seconds
+	var tween = create_tween()
+	tween.tween_property(player_blinder, "modulate:a", 1, 0.25)
+	await tween.finished
+
 	_camera_ready = false
 			
 	if collision_shape:
@@ -158,14 +185,13 @@ func hide_exit():
 		player.global_position = exit_marker.global_position + Vector3.UP * 0.25
 		player.velocity = Vector3.ZERO
 		if player:
-			var marker_yaw = exit_marker.global_rotation.y
-			var head_rot = player.rotation
-			head_rot.y = marker_yaw + deg_to_rad(90)
-			player.rotation = head_rot
+			player.global_rotation.y = self.global_rotation.y
 	else:
 		push_warning("ExitPoint not found, player will appear in same place")
 
 	player.visible = true
+	player_sprint_bar.visible = true
+	player.current_stamina = player.max_stamina # Refill stamina on exit
 	player.is_hidden = false
 	player_hidden_here = false
 
@@ -187,8 +213,6 @@ func hide_exit():
 		$Roofnode.visible = false
 	player.is_hidden = false
 
-
-
 	if type == HideType.TRASHCAN:
 		play_sfx(sfx_hide) # Play the hide sound immediately
 	else:
@@ -196,7 +220,11 @@ func hide_exit():
 		for sound in sfx_steps:
 			play_sfx(sound)
 			await get_tree().create_timer(sound.get_length()).timeout
-
+	
+	var tween2 = create_tween()
+	tween2.tween_property(player_blinder, "modulate:a", 0.0, 0.25)
+	await tween2.finished
+	player_blinder.visible = false
 
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 

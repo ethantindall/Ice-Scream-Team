@@ -61,7 +61,7 @@ func _input(event):
 		if interactable_node and interactable_node.has_method("toggle"):
 			interactable_node.toggle()
 
-		if interactable_node and interactable_node.has_method("hide_enter"):
+		if interactable_node and interactable_node.has_method("hide_enter") and player.is_hidden == false:
 			interactable_node.hide_enter()
 			is_hidden = true
 			interaction_label.text = "Press E to exit"
