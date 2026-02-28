@@ -1,6 +1,9 @@
 extends Node3D
 
-@export var item_name := "Dog House - Click to Hide"
+enum HideType { DOGHOUSE, TRASHCAN }
+
+# Use the enum as an export so you can pick it in the inspector
+@export var type: HideType = HideType.DOGHOUSE
 @export var mouse_sensitivity := 0.05
 @export var max_pitch := 15.0
 @export var max_yaw := 15.0
@@ -8,18 +11,49 @@ extends Node3D
 @export var peek_distance := 0.2
 @export var peek_speed := 0.3
 
+var item_name := ""
 var pitch = 0.0
 var yaw = 0.0
 var base_rotation = Vector3.ZERO
-@onready var player: CharacterBody3D = get_tree().get_first_node_in_group("player") as CharacterBody3D
-@onready var collision_shape = player.get_node_or_null("Collision")
-@onready var badguy: CharacterBody3D = get_tree().get_first_node_in_group("badguy") as CharacterBody3D
-
 var camera_center_position: Vector3
 var camera_target_offset: float = 0.0
 var camera_forward_offset: float = 0.0
 var player_hidden_here: bool = false
 var _camera_ready: bool = false
+var sfx_hide: AudioStream = null
+
+@onready var player: CharacterBody3D = get_tree().get_first_node_in_group("player") as CharacterBody3D
+@onready var collision_shape = player.get_node_or_null("Collision") if player else null
+@onready var badguy: CharacterBody3D = get_tree().get_first_node_in_group("badguy") as CharacterBody3D
+
+# SFX Assets
+var sfx_trashcan = preload("res://Assets/sounds/trashcan.mp3")
+var sfx_steps: Array[AudioStream] = [
+	preload("res://Assets/sounds/FreeSteps/Dirt/Steps_dirt-001.ogg"),
+	preload("res://Assets/sounds/FreeSteps/Dirt/Steps_dirt-002.ogg"),
+	preload("res://Assets/sounds/FreeSteps/Dirt/Steps_dirt-003.ogg")
+]
+
+
+
+func _ready():
+	match type:
+		HideType.TRASHCAN:
+			sfx_hide = sfx_trashcan
+			item_name = "Trashcan - Click to Hide"
+		HideType.DOGHOUSE:
+			#sfx_hide = sfx_steps[randi() % sfx_steps.size()]
+			item_name = "Dog House - Click to Hide"
+
+
+## Helper function to spawn and play 3D sounds 
+func play_sfx(stream: AudioStream):
+	if not stream: return # Safety check
+	var sound = AudioStreamPlayer3D.new()
+	sound.stream = stream
+	add_child(sound)
+	sound.play()
+	sound.finished.connect(func(): sound.queue_free())
 
 
 func get_display_text():
@@ -56,7 +90,15 @@ func hide_enter():
 	else:
 		push_warning("Doghouse Camera3D not found")
 
+	if type == HideType.TRASHCAN:
+		play_sfx(sfx_hide) # Play the hide sound immediately
+	else:
+		#for the doghouse play all sounds in sfx_steps in sequence, no delay in between
+		for sound in sfx_steps:
+			play_sfx(sound)
+			await get_tree().create_timer(sound.get_length()).timeout
 
+			
 func _physics_process(delta):
 	if player.is_hidden and $Camera3D and _camera_ready:
 		if Input.is_action_pressed("ui_left"):
@@ -105,7 +147,7 @@ func hide_exit():
 		return
 
 	_camera_ready = false
-
+			
 	if collision_shape:
 		collision_shape.disabled = false
 	else:
@@ -144,6 +186,17 @@ func hide_exit():
 	if $Roofnode:
 		$Roofnode.visible = false
 	player.is_hidden = false
+
+
+
+	if type == HideType.TRASHCAN:
+		play_sfx(sfx_hide) # Play the hide sound immediately
+	else:
+		#for the doghouse play all sounds in sfx_steps in sequence, no delay in between
+		for sound in sfx_steps:
+			play_sfx(sound)
+			await get_tree().create_timer(sound.get_length()).timeout
+
 
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 

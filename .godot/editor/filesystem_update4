@@ -1,23 +1,9 @@
 res://main_map.tscn
 res://Assets/dialogicscripts/New_File.tres
-res://Assets/plants/tree_randomizer.tscn
-res://Assets/shed/garden_shed.tscn
-res://backup ground.tscn
-res://Assets/plants/tree_02_3.gd
-res://globalscripts/trigger_finale_1_area.gd
-res://Assets/chock_block.tscn
-res://Assets/dog toys/dog_bone.tscn
-res://Assets/fence/woodengate.tscn
-res://Assets/chock_block.gd
-res://Assets/dialogicscripts/chock_block_inspect.dtl
-res://mikes_house.tscn
-res://addons/fpc/ray_cast_3d.gd
-res://globalscripts/npc.gd
-res://globalscripts/MasterEventHandler.gd
-res://Assets/cars/boones_car.tscn
-res://Assets/cars/car2/car_2.tscn
-res://Assets/ice cream truck/truck_with_ai.tscn
-res://Assets/cars/boones_car.gd
-res://testAI.tscn
 res://Assets/keys/keys.tscn
 res://Assets/testmap.tscn
+res://testAI.tscn
+res://Assets/fence/woodengate.tscn
+res://Assets/padlock/padlock.tscn
+res://addons/fpc/character.tscn
+res://globalscripts/doghouse.gd

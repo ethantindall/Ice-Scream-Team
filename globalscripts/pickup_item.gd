@@ -1,6 +1,8 @@
 # pickup_item.gd
 extends RigidBody3D
 
+@onready var player = get_tree().get_first_node_in_group("player") as CharacterBody3D
+
 @export var item_name := "Pickupable Item"
 
 # --- INTERNAL STATE ---
@@ -13,7 +15,6 @@ func get_display_text() -> String:
 	return item_name
 
 func pickup():
-	var player = get_tree().get_first_node_in_group("player") as CharacterBody3D
 	if not player:
 		return
 
@@ -36,6 +37,16 @@ func pickup():
 
 	# Start following the holder
 	_following = true
+	player.holding_item = true
+	
+	#if held item is a key
+	if is_in_group("keys"):
+		player.holding_key = true
+		#make new audio player
+		var audio_player = AudioStreamPlayer3D.new()
+		audio_player.stream = preload("res://Assets/sounds/pickupkeys.mp3")
+		add_child(audio_player)
+		audio_player.play()
 
 
 func _physics_process(delta: float) -> void:
@@ -50,7 +61,8 @@ func drop(drop_position: Vector3) -> void:
 	global_position = drop_position
 	rotation = Vector3.ZERO
 	call_deferred("_enable_physics")
-
+	player.holding_item = false
+	player.holding_key = false
 
 func _enable_physics() -> void:
 	# Restore collision layers so item interacts normally

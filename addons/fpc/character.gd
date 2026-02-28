@@ -45,6 +45,9 @@ var forced_look_target: Vector3 = Vector3.ZERO
 var forced_look_speed: float = 5.0
 
 
+var holding_item = false
+var holding_key = false
+
 @onready var player_raycast: RayCast3D = $Camera/RayCast3D
 @onready var item_holder: Node3D = $Camera/ItemHolder
 @onready var step_climb_component: StepClimbComponent = $StepClimbComponent
