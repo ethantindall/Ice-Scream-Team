@@ -2,7 +2,7 @@ extends Node
 
 var player: CharacterBody3D
 var is_running: bool = false 
-var arrow: Node3D # Assuming Arrow is a 3D node, change type if it's 2D
+var arrow: Node3D
 var arrow_original_visible: bool = false
 
 func _ready() -> void:
@@ -27,8 +27,8 @@ func run(timeline_name: String, force_look = true):
 	if player:
 		arrow = player.get_node_or_null("Camera/Arrow")
 		if arrow:
-			arrow_original_visible = arrow.visible
-			arrow.visible = false
+			arrow_original_visible = arrow.active
+			arrow.set_active(false)
 
 		# --- UPDATED: Use force_look instead of immobile ---
 		# This automatically sets state to DIALOG and shows the mouse
@@ -45,7 +45,7 @@ func _on_timeline_ended() -> void:
 		
 		# Restore Arrow visibility
 		if arrow:
-			arrow.visible = arrow_original_visible
+			arrow.set_active(arrow_original_visible)
 	
 	# Small delay to ensure inputs don't bleed through to the game frame
 	await get_tree().process_frame

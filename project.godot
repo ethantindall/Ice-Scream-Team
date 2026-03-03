@@ -17,6 +17,7 @@ warnings/check_invalid_track_paths=false
 config/name="Ice Scream"
 run/main_scene="uid://ucob6wy0hg01"
 config/features=PackedStringArray("4.4", "Forward Plus")
+run/low_processor_mode=true
 config/icon="res://icon.svg"
 
 [autoload]
@@ -27,6 +28,10 @@ GoalManager="*res://globalscripts/GoalManager.gd"
 Dialogic="*res://addons/dialogic/Core/DialogicGameHandler.gd"
 MasterEventHandler="*res://globalscripts/MasterEventHandler.gd"
 DialogicHandler="*res://globalscripts/DialogicHandler.gd"
+
+[debug]
+
+settings/stdout/print_fps=true
 
 [dialogic]
 
@@ -211,6 +216,7 @@ anti_aliasing/screen_space_roughness_limiter/enabled=false
 scaling_3d/mode=1
 scaling_3d/scale=0.75
 anti_aliasing/quality/use_taa=true
+occlusion_culling/use_occlusion_culling=true
 
 [shader_globals]
 

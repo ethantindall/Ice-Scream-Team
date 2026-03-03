@@ -2,7 +2,9 @@ extends Node
 
 # Next conversation variables for each NPC
 var my_next_convo: String = ""
-var mom_next_convo: String = "quest_1"
+var mom_next_convo: String = "quest_3"
+
+#var mom_next_convo: String = "quest_1"
 var boone_next_convo: String = "talk_to_boone_1"
 var icm_next_convo: String = "quest_4"
 var mike_next_convo: String = "mikes_house_2"
@@ -20,6 +22,7 @@ var player: CharacterBody3D
 var homeworkEnabled = false
 var homeworkLabel = ""
 
+var timmyFrontdoor: Node3D = null
 var mikeFrontDoor: Node3D = null
 var beanbagAtMikeHouse: Node3D = null
 var mikeMomAtMikeHouse: Node3D = null
@@ -61,10 +64,14 @@ func _on_dialogic_signal(argument: String) -> void:
 		"quest_3_end":
 			mom_next_convo = "mom_filler_1"
 			GoalManager.update_quest("Head to Mike's House.\n OPTIONAL: Get ice cream.\nOPTIONAL: Talk to neighbors on the way.")
-			DialogicHandler.arrow_original_visible = true
-			var timmyFrontdoor = get_tree().current_scene.get_node_or_null("Timmy's house/House/Doors/TimmyFrontDoor")
+
+			timmyFrontdoor = get_tree().current_scene.get_node_or_null("Timmy's house/House/Doors/TimmyFrontDoor")
 			if timmyFrontdoor: timmyFrontdoor.locked = false
 
+			await get_tree().create_timer(8.0).timeout
+			var pathfinding_arrow = player.get_node_or_null("Camera/Arrow")
+			if pathfinding_arrow: pathfinding_arrow.set_active(true)
+			
 		"quest_4_end":
 			icm_next_convo = "icm_filler_1"
 			GoalManager.update_quest("Head to Mike's House.\nOPTIONAL: Talk to neighbors on the way.")
@@ -92,10 +99,10 @@ func _on_dialogic_signal(argument: String) -> void:
 			neighborhood_kid_next_convo = ""
 			
 		"mikes_house_1_end":
-			var arrow = player.get_node("Camera/Arrow")
-			arrow.visible = false
-			arrow.set_process(false)
-			arrow.set_physics_process(false)
+			var pathfinding_arrow = player.get_node_or_null("Camera/Arrow")
+
+			if pathfinding_arrow: pathfinding_arrow.set_active(false)
+
 			mike_mom_next_convo = ""
 			GoalManager.update_quest("Talk to Mike.")
 			mikeMomAtMikeHouse.walk_along_path()
