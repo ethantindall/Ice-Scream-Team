@@ -1,10 +1,5 @@
-res://main_map.tscn
+res://Assets/misc/Playground/textyr/playground.tscn
 res://Assets/dialogicscripts/New_File.tres
-res://globalscripts/GameSettings.gd
-res://Assets/truck3/ice_cream_truck.tscn
-res://Assets/ice cream truck/truck_with_ai.tscn
-res://components/enemy_spawner_component.gd
 res://Assets/ice cream truck/truck_with_ai.gd
-res://Assets/houses/Villa/00_villa.tscn
-res://Assets/balls/basketball_hoop.tscn
-res://Assets/balls/basketball_court.tscn
+res://testAI.tscn
+res://main_map.tscn
