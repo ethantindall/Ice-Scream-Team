@@ -1,5 +1,9 @@
-res://Assets/misc/Playground/textyr/playground.tscn
+res://globalscripts/road_marker.gd
+res://main_map.tscn
 res://Assets/dialogicscripts/New_File.tres
 res://Assets/ice cream truck/truck_with_ai.gd
+res://player_zones.gd
+res://Assets/misc/Playground/textyr/playground.tscn
 res://testAI.tscn
-res://main_map.tscn
+res://backup ground.tscn
+res://globalscripts/PlayerZoneHandler.gd

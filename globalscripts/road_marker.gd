@@ -8,6 +8,9 @@ var _marker2: Marker3D
 var _marker3: Marker3D
 var _marker4: Marker3D
 
+@onready var northwestZone
+
+
 @export_category("Connected Nodes")
 @export var marker1: Marker3D:
 	get:
@@ -61,6 +64,16 @@ var _marker4: Marker3D
 	set(value):
 		connection_color = value
 		_update_debug_lines()
+
+
+
+@export_category("Add to Route")
+@export_enum("Northwest", "Main Street", "Park", "Central", "South") var route1: int = -1
+@export_enum("Northwest", "Main Street", "Park", "Central", "South") var route2: int = -1
+@export_enum("Northwest", "Main Street", "Park", "Central", "South") var route3: int = -1
+
+
+
 
 # Add bidirectional link by directly setting backing field (NO setter called)
 func _add_bidirectional_link(target: Marker3D) -> void:

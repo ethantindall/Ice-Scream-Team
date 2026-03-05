@@ -24,6 +24,10 @@ class_name IceCreamTruckAI
 @export var brake_tilt_angle := -3.0
 @export var brake_tilt_speed := 10.0
 
+@export var zone_handler: PlayerZoneHandler
+var current_player_zone: String = ""
+
+
 var current_speed := 0.0
 var current_target: RoadMarker = null
 var previous_marker: RoadMarker = null
@@ -44,6 +48,7 @@ var original_rotation: Vector3 = Vector3.ZERO
 var target_brake_rotation: float = 0.0
 var original_tilt: float = 0.0
 var is_tilting := false
+
 
 @onready var trigger_area: Area3D = $ObservationSystem/TriggerArea
 @onready var right_raycast: RayCast3D = $ObservationSystem/RightRaycast
@@ -70,6 +75,11 @@ func _ready() -> void:
 		_choose_next_marker()
 	else:
 		push_warning("IceCreamTruck: No starting_marker assigned!")
+
+	if zone_handler:
+		zone_handler.player_zone_changed.connect(_on_player_zone_changed)
+		current_player_zone = zone_handler.PLAYER_ZONE
+
 
 	spawner.enemy_despawned.connect(_on_enemy_hunt_finished)
 
@@ -279,3 +289,7 @@ func _on_enemy_hunt_finished() -> void:
 		current_target = best_marker
 	else:
 		_choose_next_marker()
+
+
+func _on_player_zone_changed(new_zone: String) -> void:
+    current_player_zone = new_zone
