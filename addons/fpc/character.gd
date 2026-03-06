@@ -22,7 +22,7 @@ enum PlayerState {
 
 # --- STAMINA CONFIG ---
 @export_group("Stamina")
-@export var max_stamina: float = 100.0
+@export var max_stamina: float = 10000.0
 @export var stamina_drain_rate: float = 15.0
 @export var stamina_regen_rate: float = 20.0
 @export var stamina_regen_delay: float = 1.0
