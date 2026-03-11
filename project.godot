@@ -90,6 +90,11 @@ layout/default_style="res://Assets/dialogicscripts/New_File.tres"
 glossary/default_case_sensitive=true
 variables={}
 
+[display]
+
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
 [editor]
 
 movie_writer/mjpeg_quality=1.0
@@ -128,6 +133,7 @@ truck_navigation_markers=""
 badguy_navmesh=""
 dump_marker=""
 keys=""
+truckWithAI=""
 
 [input]
 

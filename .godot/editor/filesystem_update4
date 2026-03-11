@@ -1,0 +1,9 @@
+res://Assets/ice cream truck/truck_with_ai.gd
+res://globalscripts/MasterEventHandler.gd
+res://main_map.tscn
+res://Assets/dialogicscripts/New_File.tres
+res://red_shader.gdshader
+res://CRT_shader_material.tres
+res://Assets/envs/day_environment.tscn
+res://Assets/envs/night_environment.tscn
+res://globalscripts/GameSettings.gd

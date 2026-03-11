@@ -6,6 +6,7 @@ class_name IceCreamTruckAI
 
 @export var badguy_navigation_region: NavigationRegion3D
 @export_group("Movement")
+@export var movement_enabled: bool = false
 @export var speed := 15.0
 @export var acceleration := 3.0
 @export var steering_speed := 3.0
@@ -17,6 +18,7 @@ class_name IceCreamTruckAI
 @export var avoid_backtracking := true
 
 @export_group("Player Detection")
+@export var searching_enabled: bool = true
 @export var raycast_check_interval := 0.2
 @export var player_layer := 1
 @export var brake_swerve_angle := 6.0
@@ -86,6 +88,8 @@ func _ready() -> void:
 	spawner.enemy_despawned.connect(_on_enemy_hunt_finished)
 
 func _physics_process(delta: float) -> void:
+	if not movement_enabled:
+		return
 	raycast_timer += delta
 
 	if player_in_area and player_node and raycast_timer >= raycast_check_interval:
@@ -241,7 +245,10 @@ func _arrive_at_marker() -> void:
 	if pause_at_markers > 0:
 		is_paused = true
 		pause_timer = pause_at_markers
+	MasterEventHandler._on_dialogic_signal("truck_arrived_at_point")
+	
 	_choose_next_marker()
+	
 
 func _choose_next_marker() -> void:
 	var from_marker: RoadMarker = current_target if current_target else previous_marker
@@ -320,3 +327,8 @@ func _on_enemy_hunt_finished() -> void:
 	brake_swerve_state = 0
 	# current_target is still set to wherever the truck was heading before it braked.
 	# Just let it continue — no need to recalculate anything.
+
+
+func set_position_and_target(pos_marker: RoadMarker, target_marker: RoadMarker) -> void:
+	global_position = pos_marker.global_position
+	current_target = target_marker

@@ -17,7 +17,8 @@ var mrs_jenkins_next_convo: String = "jenkins_2"
 var neighborhood_dad_next_convo: String = "neighborhood_dad_1"
 var police_officer_next_convo: String = "police_0"
 
-var player: CharacterBody3D
+var player: CharacterBody3D = null
+var truckWithAI: Node3D = null
 
 var homeworkEnabled = false
 var homeworkLabel = ""
@@ -32,6 +33,7 @@ var remaining_chock_blocks = 2
 
 func _ready() -> void:
 	player = get_tree().get_first_node_in_group("player") as CharacterBody3D
+	truckWithAI = get_tree().get_first_node_in_group("truckWithAI") as Node3D
 	#player.global_position = playerInitialPosition
 
 
@@ -113,8 +115,7 @@ func _on_dialogic_signal(argument: String) -> void:
 			
 		"game_done":
 			if beanbagAtMikeHouse: beanbagAtMikeHouse.disabled = true
-			GameSettings.time_of_day = "NIGHT"
-			GameSettings.apply_time_of_day()
+			GameSettings.set_time_of_day("NIGHT")
 			GoalManager.update_quest("")
 			if mikeFrontDoor:
 				mikeFrontDoor.locked = false
@@ -134,9 +135,20 @@ func _on_dialogic_signal(argument: String) -> void:
 
 		"nighttime_ambiance_on":
 			await get_tree().create_timer(7.5).timeout
-			_trigger_drive_by2("IceCreamTruck-Night-1", false, false, true, 6.0, true)
+			var marker_a = get_tree().current_scene.find_child("Marker3D26", true, false)
+			var marker_b = get_tree().current_scene.find_child("Marker3D24", true, false)
+			truckWithAI.set_position_and_target(marker_a, marker_b)
+			truckWithAI.movement_enabled = true
+			#once truck reaches marker_b, disable movement
+
+			#_trigger_drive_by2("IceCreamTruck-Night-1", false, false, true, 6.0, true)
 			DialogicHandler.run("demo_done")
 
+		"truck_arrived_at_point":
+			var marker_b = get_tree().current_scene.find_child("Marker3D24", true, false)
+			if truckWithAI.current_target == marker_b:
+				truckWithAI.movement_enabled = false
+				
 		"caught":
 			if player:
 				# Using the DRAGGED state we created in the player script
