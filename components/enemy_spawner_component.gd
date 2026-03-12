@@ -98,4 +98,5 @@ func _on_enemy_returned() -> void:
 	if nav_region:
 		nav_region.enabled = false
 	
+	MasterEventHandler.badguy = null
 	enemy_despawned.emit()

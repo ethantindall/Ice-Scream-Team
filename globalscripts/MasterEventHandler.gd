@@ -19,6 +19,7 @@ var police_officer_next_convo: String = "police_0"
 
 var player: CharacterBody3D = null
 var truckWithAI: Node3D = null
+var badguy: Node3D = null
 
 var homeworkEnabled = false
 var homeworkLabel = ""
@@ -125,7 +126,7 @@ func _on_dialogic_signal(argument: String) -> void:
 
 		"game_done_2":
 			await get_tree().create_timer(2.0).timeout
-			DialogicHandler.run("mikes_house_3")
+			#DialogicHandler.run("mikes_house_3")
 			mike_mom_next_convo = "mikes_house_4"
 			mike_next_convo = ""
 			GoalManager.update_quest("Hurry home.")
@@ -134,21 +135,42 @@ func _on_dialogic_signal(argument: String) -> void:
 			mike_mom_next_convo = ""
 
 		"nighttime_ambiance_on":
-			await get_tree().create_timer(7.5).timeout
-			var marker_a = get_tree().current_scene.find_child("Marker3D26", true, false)
-			var marker_b = get_tree().current_scene.find_child("Marker3D24", true, false)
+			await get_tree().create_timer(0.5).timeout
+			var marker_a = get_tree().current_scene.find_child("Marker3D27", true, false)
+			var marker_b = get_tree().current_scene.find_child("Marker3D25", true, false)
 			truckWithAI.set_position_and_target(marker_a, marker_b)
 			truckWithAI.movement_enabled = true
-			#once truck reaches marker_b, disable movement
-
-			#_trigger_drive_by2("IceCreamTruck-Night-1", false, false, true, 6.0, true)
-			DialogicHandler.run("demo_done")
+			truckWithAI.searching_enabled = false
 
 		"truck_arrived_at_point":
-			var marker_b = get_tree().current_scene.find_child("Marker3D24", true, false)
+			var marker_b = get_tree().current_scene.find_child("Marker3D25", true, false)
+			
+			# Ensure we are at the right destination
 			if truckWithAI.current_target == marker_b:
 				truckWithAI.movement_enabled = false
-				
+				truckWithAI.searching_enabled = false		
+				truckWithAI.spawner.start_spawn_sequence()
+				await get_tree().create_timer(1.0).timeout
+				badguy = get_tree().get_first_node_in_group("badguy") as Node3D
+				if badguy:
+					print("Got badguy reference, freezing him.")
+					badguy.freeze = true	
+				else:
+					print("Error: Badguy not found after spawn sequence.")
+
+		"trigger_way_home_3":
+			badguy.talk_to("way_home_3")
+
+
+		"way_home_3_end":
+			GoalManager.update_quest("RUN!")
+			await get_tree().create_timer(2.0).timeout
+			if badguy:
+				badguy.freeze = false
+			if truckWithAI:
+				truckWithAI.movement_enabled = true
+				truckWithAI.searching_enabled = true
+
 		"caught":
 			if player:
 				# Using the DRAGGED state we created in the player script
@@ -206,47 +228,3 @@ func update_chock_block_counter():
 	print("Chock blocks remaining: ", remaining_chock_blocks)
 	if remaining_chock_blocks <= 0:
 		_on_dialogic_signal("move_boones_car")
-
-func _trigger_drive_by2(truckname, should_force_look, wait_for_truck, cleanup, truckspeed, trigger_end_game) -> void:
-	var trucknode = get_tree().current_scene.find_child(truckname, true, false)
-	if truckspeed != null and trucknode:
-		trucknode.speed = truckspeed    
-	
-	if trucknode and player:
-		trucknode.visible = true
-		var follower = trucknode.get_parent()
-
-		if not (follower is PathFollow3D): return
-
-		follower.progress_ratio = 0.0
-		var original_forward_point = player.CAMERA.global_position - player.CAMERA.global_transform.basis.z * 10.0
-		trucknode.is_driving = true
-		
-		# UPDATED: Replaced immobile with the correct state setters
-		if wait_for_truck:
-			player.current_state = player.PlayerState.DIALOG # Manual lock
-		
-		if should_force_look:
-			player.force_look = true
-			var marker = trucknode.find_child("Marker3D", true, false)
-			if marker:
-				player.forced_look_target = marker.global_position
-		
-		var audio = trucknode.find_child("AudioStreamPlayer3D", true, false)
-		if audio: audio.play()
-
-		while follower.progress_ratio < 0.99:
-			await get_tree().process_frame
-		
-		trucknode.is_driving = false
-
-		if should_force_look:
-			player.forced_look_target = original_forward_point
-			await get_tree().create_timer(1.5).timeout
-
-		if cleanup:
-			if audio: audio.stop()
-			player.force_look = false
-			player.current_state = player.PlayerState.IDLE
-			follower.progress_ratio = 0.4
-			trucknode.speed = 6.0

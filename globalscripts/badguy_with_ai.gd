@@ -63,6 +63,18 @@ var is_returning_to_spawn: bool = false
 var player_left_navmesh_timer: float = 0.0
 var is_waiting_after_player_left: bool = false
 
+var freeze: bool = false:
+	set(value):
+		freeze = value
+		if freeze:
+			velocity = Vector3.ZERO
+			# Ensure the animation player exists before calling it
+			if animation_player:
+				animation_player.play("animations/idle3")
+		elif not freeze:
+			# Optional: tell the AI to re-evaluate its path when unfrozen
+			update_pathfinding_target()
+
 signal returned_to_truck
 
 func _ready() -> void:
@@ -92,6 +104,14 @@ func _get_dump_marker() -> Marker3D:
 	return null
 
 func _physics_process(delta: float) -> void:
+	if freeze:
+			# We still want him to stand on the ground if he spawns in the air
+			if not is_on_floor(): 
+				velocity.y -= gravity * delta
+				move_and_slide()
+			return
+		
+			print("wow")
 	if has_finished_game: return
 	if not is_on_floor(): velocity.y -= gravity * delta
 
@@ -401,3 +421,39 @@ func _on_proximity_alert_area_body_entered(body: Node3D) -> void:
 		last_known_position = player.global_position
 
 func get_current_state() -> State: return current_state
+
+
+
+func talk_to(dialog_to_play: String):
+	if DialogicHandler.is_running:
+		return
+
+	if player:
+		# 1. Force the player to look at the bad guy
+		player.force_look = true
+		# Use a marker if it exists, otherwise just the bad guy's position
+		if has_node("FaceMarker"):
+			player.forced_look_target = $FaceMarker.global_position
+		else:
+			player.forced_look_target = global_position + Vector3(0, 1.5, 0)
+
+		# 2. Make the bad guy look at the player
+		var dir_to_player := (player.global_position - global_position).normalized()
+		var target_yaw = atan2(dir_to_player.x, dir_to_player.z)
+		
+		# Smoothly rotate or snap (snapping here for simplicity)
+		global_rotation.y = target_yaw
+
+	# 3. Handle signals safely
+	if not Dialogic.timeline_ended.is_connected(_on_timeline_ended):
+		Dialogic.timeline_ended.connect(_on_timeline_ended)
+
+	DialogicHandler.run(dialog_to_play)
+
+
+func _on_timeline_ended():
+	if player:
+		player.force_look = false
+	# Disconnect to keep things clean for the next interaction
+	if Dialogic.timeline_ended.is_connected(_on_timeline_ended):
+		Dialogic.timeline_ended.disconnect(_on_timeline_ended)

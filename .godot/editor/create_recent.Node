@@ -1,3 +1,5 @@
+CharacterBody3D
+TextEdit
 WorldEnvironment
 CollisionShape3D
 ColorRect
@@ -11,5 +13,3 @@ Label
 ProgressBar
 StaticBody3D
 CSGCombiner3D
-MeshInstance3D
-DirectionalLight3D

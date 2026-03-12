@@ -8,7 +8,7 @@ class_name IceCreamTruckAI
 @export_group("Movement")
 @export var movement_enabled: bool = false
 @export var speed := 15.0
-@export var acceleration := 3.0
+@export var acceleration := 2.0
 @export var steering_speed := 3.0
 @export var arrival_threshold := 1.0
 
@@ -56,6 +56,7 @@ var is_tilting := false
 @onready var left_raycast: RayCast3D = $ObservationSystem/LeftRaycast
 
 func _ready() -> void:
+		
 	# 1. Grab the player node globally so we always have their current position.
 	# We never null this out — the truck always knows where the player is.
 	player_node = get_tree().get_first_node_in_group("player")
@@ -90,6 +91,9 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if not movement_enabled:
 		return
+	if spawner.current_enemy:
+		return  # Don't move while actively hunting the player
+		
 	raycast_timer += delta
 
 	if player_in_area and player_node and raycast_timer >= raycast_check_interval:
@@ -109,43 +113,7 @@ func _physics_process(delta: float) -> void:
 			print("Reached closest point to player, initiating braking sequence...")
 
 		if closest_point_reached:
-			if is_tilting:
-				if current_speed > 0.5:
-					var target_tilt = original_tilt + deg_to_rad(brake_tilt_angle)
-					rotation.x = lerp_angle(rotation.x, target_tilt, brake_tilt_speed * delta)
-				else:
-					rotation.x = lerp_angle(rotation.x, original_tilt, brake_tilt_speed * delta)
-					if abs(rotation.x - original_tilt) < 0.01:
-						is_tilting = false
-
-			if is_braking and brake_swerve_state > 0 and brake_swerve_state < 4:
-				var current_y = rotation.y
-				var rotation_diff = target_brake_rotation - current_y
-
-				if abs(rotation_diff) < 0.01:
-					brake_swerve_state += 1
-					if brake_swerve_state == 2:
-						target_brake_rotation = original_rotation.y + deg_to_rad(brake_swerve_angle)
-					elif brake_swerve_state == 3:
-						target_brake_rotation = original_rotation.y
-					elif brake_swerve_state == 4:
-						is_braking = false
-				else:
-					rotation.y = lerp_angle(current_y, target_brake_rotation, brake_swerve_speed * delta)
-
-			current_speed = lerp(current_speed, 0.0, acceleration * delta)
-
-			if current_speed <= 0.1:
-				current_speed = 0.0
-				if not spawner.is_processing_spawn and not spawner.current_enemy:
-					print("Truck stopped. Triggering NPC spawn.")
-					spawner.start_spawn_sequence()
-
-			if current_speed > 0.0:
-				var forward = -global_transform.basis.z
-				var velocity = forward * current_speed
-				global_position += velocity * delta
-
+			_handle_braking(delta)
 			return
 
 	if not current_target:
@@ -177,6 +145,44 @@ func _physics_process(delta: float) -> void:
 	global_position += velocity * delta
 
 	_smooth_look_at(current_target.global_position, delta)
+
+func _handle_braking(delta: float) -> void:
+	if is_tilting:
+		if current_speed > 0.5:
+			var target_tilt = original_tilt + deg_to_rad(brake_tilt_angle)
+			rotation.x = lerp_angle(rotation.x, target_tilt, brake_tilt_speed * delta)
+		else:
+			rotation.x = lerp_angle(rotation.x, original_tilt, brake_tilt_speed * delta)
+			if abs(rotation.x - original_tilt) < 0.01:
+				is_tilting = false
+
+	if is_braking and brake_swerve_state > 0 and brake_swerve_state < 4:
+		var current_y = rotation.y
+		var rotation_diff = target_brake_rotation - current_y
+
+		if abs(rotation_diff) < 0.01:
+			brake_swerve_state += 1
+			if brake_swerve_state == 2:
+				target_brake_rotation = original_rotation.y + deg_to_rad(brake_swerve_angle)
+			elif brake_swerve_state == 3:
+				target_brake_rotation = original_rotation.y
+			elif brake_swerve_state == 4:
+				is_braking = false
+		else:
+			rotation.y = lerp_angle(current_y, target_brake_rotation, brake_swerve_speed * delta)
+
+	current_speed = lerp(current_speed, 0.0, acceleration * delta)
+
+	if current_speed <= 0.1:
+		current_speed = 0.0
+		if not spawner.is_processing_spawn and not spawner.current_enemy:
+			print("Truck stopped. Triggering NPC spawn.")
+			spawner.start_spawn_sequence()
+
+	if current_speed > 0.0:
+		var forward = -global_transform.basis.z
+		var velocity = forward * current_speed
+		global_position += velocity * delta
 
 func _is_at_closest_point_to_player() -> bool:
 	if player_seen_location == Vector3.ZERO or not current_target:
@@ -318,8 +324,6 @@ func _on_trigger_area_body_entered(body: Node3D) -> void:
 func _on_trigger_area_body_exited(body: Node3D) -> void:
 	_on_player_exited_area(body)
 
-
-
 func _on_enemy_hunt_finished() -> void:
 	player_detected = false
 	closest_point_reached = false
@@ -327,7 +331,6 @@ func _on_enemy_hunt_finished() -> void:
 	brake_swerve_state = 0
 	# current_target is still set to wherever the truck was heading before it braked.
 	# Just let it continue — no need to recalculate anything.
-
 
 func set_position_and_target(pos_marker: RoadMarker, target_marker: RoadMarker) -> void:
 	global_position = pos_marker.global_position

@@ -16,8 +16,9 @@ const NIGHT_ENV = preload("res://Assets/envs/night_env_pack.tres")
 @export var render_distance: float = 400.0
 
 @export_group("Time State")
-@export_enum("DAY", "NIGHT") var time_of_day: String = "DAY"
+@export_enum("DAY", "NIGHT") var time_of_day: String = "NIGHT"
 
+signal time_of_day_changed(new_time: String)
 
 var world_env: WorldEnvironment = null
 
@@ -41,25 +42,31 @@ func _ready():
 func set_time_of_day(new_time: String):
 	if time_of_day != new_time:
 		time_of_day = new_time
+		emit_signal("time_of_day_changed", time_of_day)
 		update_environment()
 
 func update_environment():
 	var is_day = (time_of_day == "DAY")
 	
-	# 1. Swap Environment Resource
 	if world_env:
 		world_env.environment = DAY_ENV if is_day else NIGHT_ENV
-
-	# 2. Toggle Light Visibility
 	if SUN_LIGHT: SUN_LIGHT.visible = is_day
 	if MOON_LIGHT: MOON_LIGHT.visible = !is_day
 	if MOON: MOON.visible = !is_day
 
 	var day_folder = get_tree().get_first_node_in_group("daytime_folder")
+	print("got day folder")
 	var night_folder = get_tree().get_first_node_in_group("nighttime_folder")
-	day_folder.queue_free()
-	night_folder.visible = true
+	print("got night folder")
 
+	if day_folder:
+		day_folder.visible = is_day
+		print("set day folder visibility to " + str(is_day))
+		day_folder.process_mode = Node.PROCESS_MODE_INHERIT if is_day else Node.PROCESS_MODE_DISABLED
+	if night_folder:
+		night_folder.visible = !is_day
+		print("set night folder visibility to " + str(!is_day))
+		night_folder.process_mode = Node.PROCESS_MODE_DISABLED if is_day else Node.PROCESS_MODE_INHERIT
 
 # ---------------------
 # VIDEO & CAMERA

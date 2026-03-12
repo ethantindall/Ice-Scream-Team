@@ -1,9 +1,14 @@
-res://Assets/ice cream truck/truck_with_ai.gd
-res://globalscripts/MasterEventHandler.gd
-res://main_map.tscn
+res://Assets/chars/00_completed chars/badguy.tscn
+res://Assets/envs/day_env_pack.tres
+res://Assets/envs/night_env_pack.tres
 res://Assets/dialogicscripts/New_File.tres
-res://red_shader.gdshader
+res://Assets/ice cream truck/truck_with_ai.gd
 res://CRT_shader_material.tres
-res://Assets/envs/day_environment.tscn
-res://Assets/envs/night_environment.tscn
-res://globalscripts/GameSettings.gd
+res://red_shader.gdshader
+res://Assets/ice cream truck/truck_with_ai.tscn
+res://main_map.tscn
+res://way_home_3_area.gd
+res://globalscripts/MasterEventHandler.gd
+res://Assets/chars/00_completed chars/badguyWithAI.tscn
+res://globalscripts/badguy_with_ai.gd
+res://globalscripts/npc.gd
