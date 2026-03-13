@@ -24,7 +24,7 @@ var sfx_hide: AudioStream = null
 
 @onready var player: CharacterBody3D = get_tree().get_first_node_in_group("player") as CharacterBody3D
 @onready var collision_shape = player.get_node_or_null("Collision") if player else null
-@onready var badguy: CharacterBody3D = get_tree().get_first_node_in_group("badguy") as CharacterBody3D
+@onready var badguy: CharacterBody3D = null
 @onready var player_blinder = player.get_node_or_null("CanvasLayer/Control/Blinder") if player else null
 @onready var player_sprint_bar = player.get_node_or_null("CanvasLayer/Control/Label") if player else null
 
@@ -64,6 +64,7 @@ func get_display_text():
 
 
 func hide_enter():
+	badguy = get_tree().get_first_node_in_group("badguy") as CharacterBody3D
 	if not player:
 		push_warning("Player not found")
 		return
@@ -230,9 +231,19 @@ func hide_exit():
 
 
 func _on_badguy_area_body_entered(body: Node3D) -> void:
+	if badguy == null:
+		badguy = get_tree().get_first_node_in_group("badguy") as CharacterBody3D
+	if body != badguy:
+		return
+
+	print("Body entered badguy area: ", body.name)
+	print("Player hidden here: ", player_hidden_here)
+	print("Player is hidden: ", player.is_hidden)	
+	print("Badguy get_em_anyway: ", badguy.get_em_anyway)
 	if body == badguy and player_hidden_here and player.is_hidden and badguy.get_em_anyway:
 		print("THE BADGUY IS IN THE AREA")
 		hide_exit()
-		badguy.call_deferred("start_dragging")
+		#await get_tree().create_timer(2.0).timeout
+		#badguy.call_deferred("start_dragging")
 	else:
 		print("not the badguy")

@@ -374,43 +374,41 @@ func _cancel_return_to_spawn() -> void:
 	is_waiting_after_player_left = false
 	is_returning_to_spawn = false
 	player_left_navmesh_timer = 0.0
-
 func _process_vision_logic() -> void:
 	if is_dragging or is_returning_to_spawn: return
 
 	var could_see_before = player_spotted
 	var can_see_now = _perform_vision_check()
 
-	print("[VISION] could_see_before=%s  can_see_now=%s  player.is_hidden=%s  get_em_anyway=%s  is_searching=%s  is_waiting=%s  wait_timer=%.1f" % [could_see_before, can_see_now, player.is_hidden, get_em_anyway, is_searching, is_waiting, wait_timer])
-
 	if can_see_now:
-		if not could_see_before:
-			print("[VISION] 👁️ Player spotted!")
-		last_known_position = player.global_position
+		# Standard chase logic
 		player_spotted = true
+		get_em_anyway = false 
 		is_searching = false
 		is_waiting = false
-		get_em_anyway = false
+		last_known_position = player.global_position
 		wait_timer = 0.0
 
-	elif could_see_before and not can_see_now:
-		print("[VISION] 🙈 Lost sight of player. is_hidden=%s → get_em_anyway will be=%s" % [player.is_hidden, player.is_hidden])
+	elif could_see_before:
+		# WE JUST LOST SIGHT THIS FRAME
 		player_spotted = false
-
+		
+		# If we lost sight and the player is hidden (or was about to be), 
+		# we go into "get_em_anyway" mode.
 		if player.is_hidden:
 			get_em_anyway = true
 			is_searching = false
-			is_waiting = false
-			print("[VISION] 🗑️ Player hid while watched → get_em_anyway=true, heading to last_known_position=%s" % last_known_position)
+			print("[VISION] 🗑️ Saw you hide! I'm coming for that doghouse.")
 		else:
 			get_em_anyway = false
 			is_searching = true
-			is_waiting = false
-			wait_timer = 0.0
-			print("[VISION] 🔍 Lost sight normally → is_searching=true, heading to last_known_position=%s" % last_known_position)
+			print("[VISION] 🔍 Lost you in the open. Searching...")
+			
+		last_known_position = player.global_position
+		update_pathfinding_target()
 
-	if not player_spotted and not is_searching and not is_waiting and not get_em_anyway:
-		if eye_cast: eye_cast.rotation = Vector3.ZERO
+	# IMPORTANT: Do not add an 'else' here that resets get_em_anyway.
+	# It must stay true until handled in _handle_logic.
 
 func _perform_vision_check() -> bool:
 	if not eye_cast or not player: return false

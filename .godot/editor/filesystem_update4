@@ -11,3 +11,4 @@ res://Assets/chars/00_completed chars/badguyWithAI.tscn
 res://globalscripts/badguy_with_ai.gd
 res://globalscripts/MasterEventHandler.gd
 res://globalscripts/doghouse.gd
+res://addons/fpc/character.gd

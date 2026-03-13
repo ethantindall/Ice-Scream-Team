@@ -172,7 +172,7 @@ func _unhandled_input(event):
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		if current_state == PlayerState.DRAGGED:
 			CAMERA.rotation_degrees.y = clamp(
-				CAMERA.rotation_degrees.y - event.relative.x * mouse_sensitivity,
+				CAMERA.rotation_degrees.y+90 - event.relative.x * mouse_sensitivity,
 				-drag_look_limit,
 				drag_look_limit
 			)
