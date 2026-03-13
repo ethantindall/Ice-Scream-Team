@@ -19,15 +19,17 @@ enum State { IDLE, WALKING, SPRINTING, SEARCHING, RETURNING_TO_SPAWN }
 @export var walking_speed: float = 3.0
 @export var running_speed: float = 7.0
 @export var rotation_speed: float = 10.0
-@export var path_update_interval: float = 0.25 
-@export var force_run: bool = true 
-@export var search_wait_time: float = 20.0 
-@export var wander_radius: float = 11.0 
+@export var path_update_interval: float = 0.25
+@export var force_run: bool = true
+@export var search_wait_time: float = 10.0  # FIX: Was 20s, spec says 10s
+@export var wander_radius: float = 11.0
 @export var player_left_navmesh_wait_time: float = 2.0
 
 # --- ANTI-STUCK SETTINGS ---
-@export var stuck_threshold: float = 0.5
-@export var recovery_duration: float = 0.6
+@export var stuck_threshold: float = 0.5          # Seconds before recovery starts
+@export var recovery_duration: float = 0.6         # How long to back up
+@export var phase_through_duration: float = 2.0    # How long to phase through small obstacles
+@export var despawn_stuck_threshold: float = 5.0   # FIX #3: Despawn if stuck longer than this
 
 # --- INTERNAL VARIABLES ---
 var drag_timer: float = 0.0
@@ -38,23 +40,31 @@ var wait_timer: float = 0.0
 
 var last_frame_position: Vector3 = Vector3.ZERO
 var stuck_timer: float = 0.0
+var total_stuck_timer: float = 0.0   # FIX #3: Tracks cumulative stuck time for despawn
 var recovery_timer: float = 0.0
 var is_recovering: bool = false
 var recovery_vector: Vector3 = Vector3.ZERO
+
+# FIX #3: Phase-through (walk through curbs temporarily)
+var is_phasing: bool = false
+var phase_timer: float = 0.0
+var original_collision_mask: int = 0
+var original_collision_layer: int = 0
 
 var is_dragging: bool = false
 var player_spotted: bool = false
 var is_searching: bool = false
 var is_waiting: bool = false
 var last_known_position: Vector3 = Vector3.ZERO
-var wander_target: Vector3 = Vector3.ZERO 
-var has_finished_game: bool = false 
-var is_player_in_light_area: bool = false 
+var wander_target: Vector3 = Vector3.ZERO
+var has_finished_game: bool = false
+var is_player_in_light_area: bool = false
 
 var cached_player_cam: Camera3D
 var cached_player_anim: AnimationPlayer
 var cached_player_collision: CollisionShape3D
 
+# FIX #2: get_em_anyway is true when badguy SAW the player hide (not just that player is hidden)
 var get_em_anyway: bool = false
 
 # --- RETURN TO SPAWN VARIABLES ---
@@ -68,30 +78,29 @@ var freeze: bool = false:
 		freeze = value
 		if freeze:
 			velocity = Vector3.ZERO
-			# Ensure the animation player exists before calling it
 			if animation_player:
 				animation_player.play("animations/idle3")
 		elif not freeze:
-			# Optional: tell the AI to re-evaluate its path when unfrozen
 			update_pathfinding_target()
 
 signal returned_to_truck
 
 func _ready() -> void:
-	await get_tree().process_frame 
+	await get_tree().process_frame
 	spawn_position = global_position
+	original_collision_mask = collision_mask
+	original_collision_layer = collision_layer
 
-	
 	if eye_cast:
 		eye_cast.enabled = true
 		eye_cast.exclude_parent = true
-	
+
 	if flashlight:
 		if flashlight.has_signal("player_in_flashlight_area"):
 			flashlight.player_in_flashlight_area.connect(_on_flashlight_player_in_area)
 		if flashlight.has_signal("player_left_flashlight_area"):
 			flashlight.player_left_flashlight_area.connect(_on_flashlight_player_left_area)
-	
+
 	if player:
 		player_spotted = true
 		last_known_position = player.global_position
@@ -105,15 +114,19 @@ func _get_dump_marker() -> Marker3D:
 
 func _physics_process(delta: float) -> void:
 	if freeze:
-			# We still want him to stand on the ground if he spawns in the air
-			if not is_on_floor(): 
-				velocity.y -= gravity * delta
-				move_and_slide()
-			return
-		
-			print("wow")
+		if not is_on_floor():
+			velocity.y -= gravity * delta
+			move_and_slide()
+		return
+
 	if has_finished_game: return
 	if not is_on_floor(): velocity.y -= gravity * delta
+
+	# FIX #3: Tick down phase-through timer and restore collision when done
+	if is_phasing:
+		phase_timer += delta
+		if phase_timer >= phase_through_duration:
+			_end_phase_through()
 
 	# 1. RECOVERY OVERRIDE
 	if is_recovering:
@@ -134,18 +147,26 @@ func _physics_process(delta: float) -> void:
 	_handle_logic(delta)
 
 	# 4. STUCK DETECTION
-	# Modified to only trigger if velocity intent is high but actual movement is low
+	# Only triggers if we're trying to move but not going anywhere
 	if velocity.length() > 0.5 and not is_dragging:
 		if global_position.distance_to(last_frame_position) < 0.02:
 			stuck_timer += delta
+			total_stuck_timer += delta  # FIX #3: Track cumulative stuck time
 		else:
 			stuck_timer = 0.0
-		
+			total_stuck_timer = 0.0  # Reset if we're moving again
+
 		if stuck_timer >= stuck_threshold:
 			_start_recovery()
+
+		# FIX #3: If stuck for too long even after recovery attempts, despawn
+		if total_stuck_timer >= despawn_stuck_threshold:
+			_despawn()
+			return
 	else:
 		stuck_timer = 0.0
-		
+		# Don't reset total_stuck_timer here — only movement resets it (see above)
+
 	last_frame_position = global_position
 	move_and_slide()
 
@@ -159,11 +180,18 @@ func _start_recovery() -> void:
 	var random_offset = Vector3(randf_range(-0.5, 0.5), 0, randf_range(-0.5, 0.5))
 	recovery_vector = (back + random_offset).normalized()
 
+	# FIX #3: Start phasing through small obstacles (curbs etc) but NOT the ground
+	# We do this by keeping collision with layer 1 (ground/world geometry floors)
+	# but removing it from layer 2+ (props, curbs, small obstacles).
+	# Adjust these layer numbers to match your project's collision setup.
+	if not is_phasing:
+		_start_phase_through()
+
 func _handle_recovery(delta: float) -> void:
 	recovery_timer += delta
 	velocity.x = recovery_vector.x * walking_speed
 	velocity.z = recovery_vector.z * walking_speed
-	
+
 	if animation_player.has_animation("animations/Walk"):
 		animation_player.play("animations/Walk", -1, -1.0)
 
@@ -171,21 +199,36 @@ func _handle_recovery(delta: float) -> void:
 		is_recovering = false
 		update_pathfinding_target()
 
+# FIX #3: Temporarily disable collision with small obstacle layers
+# Keep layer 1 active so the badguy stays on the ground.
+# Change OBSTACLE_COLLISION_LAYER to match your curbs/props layer in your project.
+const OBSTACLE_COLLISION_LAYER: int = 2  # <-- Set this to your curb/prop layer
+
+func _start_phase_through() -> void:
+	is_phasing = true
+	phase_timer = 0.0
+	# Remove only the obstacle layer bit, keep ground layer (bit 1) intact
+	collision_mask = original_collision_mask & ~(1 << (OBSTACLE_COLLISION_LAYER - 1))
+
+func _end_phase_through() -> void:
+	is_phasing = false
+	phase_timer = 0.0
+	collision_mask = original_collision_mask
+
 # --- MOVEMENT AND LOGIC ---
 
 func move_along_path(delta: float) -> void:
-	# Don't move if we've arrived
 	if navigation_agent_3d.is_navigation_finished():
 		stop_moving()
 		return
 
 	var next_path_pos = navigation_agent_3d.get_next_path_position()
 	var direction = global_position.direction_to(next_path_pos)
-	direction.y = 0 
+	direction.y = 0
 	direction = direction.normalized()
 
 	var target_speed = running_speed if (current_state == State.SPRINTING and not is_dragging) else walking_speed
-	
+
 	if is_dragging:
 		var cycle_time = fmod(drag_timer, 1.5)
 		if cycle_time > 1.0: target_speed = 0.0
@@ -193,7 +236,6 @@ func move_along_path(delta: float) -> void:
 	else:
 		animation_player.speed_scale = 1.0
 
-	# Rotation
 	if direction.length() > 0.1:
 		var target_angle = atan2(-direction.x, -direction.z)
 		rotation.y = lerp_angle(rotation.y, target_angle, rotation_speed * delta)
@@ -202,15 +244,14 @@ func move_along_path(delta: float) -> void:
 
 	velocity.x = direction.x * target_speed
 	velocity.z = direction.z * target_speed
-	
-	# Animations based on movement speed
+
 	if velocity.length() > 0.2:
 		var anim_name = "animations/Walk"
-		if is_dragging: 
+		if is_dragging:
 			anim_name = "animations/Drag"
-		elif target_speed > walking_speed + 1.0: 
+		elif target_speed > walking_speed + 1.0:
 			anim_name = "animations/Running"
-			
+
 		if animation_player.has_animation(anim_name):
 			if animation_player.current_animation != anim_name:
 				animation_player.play(anim_name)
@@ -219,7 +260,17 @@ func move_along_path(delta: float) -> void:
 
 func _handle_logic(delta: float) -> void:
 	var reached_destination = navigation_agent_3d.is_navigation_finished()
-	
+
+	# DEBUG: print active branch every ~1s to avoid spam
+	# (Using update_timer as a proxy — it resets every path_update_interval)
+	if update_timer < delta:
+		print("[LOGIC] state=%s  player_spotted=%s  get_em_anyway=%s  is_searching=%s  is_waiting=%s  wait_timer=%.1f/%.1f  is_returning=%s  reached_dest=%s" % [
+			State.keys()[current_state], player_spotted, get_em_anyway,
+			is_searching, is_waiting, wait_timer, search_wait_time,
+			is_returning_to_spawn, reached_destination
+		])
+
+	# --- WAITING AFTER PLAYER LEFT NAVMESH ---
 	if is_waiting_after_player_left and not is_returning_to_spawn:
 		player_left_navmesh_timer += delta
 		current_state = State.IDLE
@@ -227,7 +278,8 @@ func _handle_logic(delta: float) -> void:
 		if player_left_navmesh_timer >= player_left_navmesh_wait_time:
 			_start_return_to_spawn()
 		return
-	
+
+	# --- RETURNING TO SPAWN ---
 	if is_returning_to_spawn:
 		current_state = State.SPRINTING
 		if reached_destination and global_position.distance_to(spawn_position) < 2.0:
@@ -235,38 +287,58 @@ func _handle_logic(delta: float) -> void:
 		else:
 			move_along_path(delta)
 		return
-	
+
+	# --- DRAGGING ---
 	if is_dragging:
 		_drag_player_logic(delta)
 		if dump_marker and reached_destination and global_position.distance_to(dump_marker.global_position) < 2.0:
 			finish_drag()
 		else:
 			move_along_path(delta)
-			
+
+	# --- CHASING VISIBLE PLAYER ---
 	elif player_spotted:
 		current_state = State.SPRINTING if force_run else State.WALKING
 		move_along_path(delta)
-		
-	elif is_searching or get_em_anyway:
-		current_state = State.SPRINTING 
+
+	# FIX #2: get_em_anyway — badguy saw the player hide; go to last known pos and catch them
+	elif get_em_anyway:
+		current_state = State.SPRINTING
 		if reached_destination:
+			print("[LOGIC] 🗑️ Reached hiding spot. Player still hidden=%s. Switching to search/wander." % player.is_hidden)
+			get_em_anyway = false
+			is_searching = true
+			is_waiting = false
+			wait_timer = 0.0
+			_pick_next_wander_point()
+		else:
+			move_along_path(delta)
+
+	# FIX #1: SEARCHING — lost sight of player, moving to last known position
+	elif is_searching:
+		current_state = State.SPRINTING
+		if reached_destination:
+			print("[LOGIC] 🔍 Reached last known position. Switching to wander.")
 			is_searching = false
 			is_waiting = true
 			wait_timer = 0.0
 			_pick_next_wander_point()
 		else:
 			move_along_path(delta)
-	
+
+	# FIX #1: WAITING/WANDERING — player not found at last known pos, wandering the area
 	elif is_waiting:
 		current_state = State.WALKING
 		wait_timer += delta
-		if wait_timer >= search_wait_time: 
-			_stop_searching()
-		elif reached_destination: 
+		if wait_timer >= search_wait_time:
+			print("[LOGIC] ⏱️ Search timed out (%.1fs). Returning to truck." % wait_timer)
+			_start_return_to_spawn()
+		elif reached_destination:
+			print("[LOGIC] 🚶 Wander point reached. Picking next. wait_timer=%.1f" % wait_timer)
 			_pick_next_wander_point()
 		else:
 			move_along_path(delta)
-			
+
 	else:
 		current_state = State.IDLE
 		stop_moving()
@@ -277,16 +349,26 @@ func _check_player_on_navmesh() -> void:
 	if is_dragging or not player: return
 	var nav_map = navigation_agent_3d.get_navigation_map()
 	var closest_point = NavigationServer3D.map_get_closest_point(nav_map, player.global_position)
-	
-	if player.global_position.distance_to(closest_point) > 2.0:
+	var dist_to_navmesh = player.global_position.distance_to(closest_point)
+
+	# DEBUG: Uncomment to trace navmesh checks (will spam — only enable when needed)
+	# print("[NAVMESH] dist_to_navmesh=%.2f  is_hidden=%s  is_waiting_after_left=%s  is_returning=%s" % [dist_to_navmesh, player.is_hidden, is_waiting_after_player_left, is_returning_to_spawn])
+
+	if dist_to_navmesh > 2.0:
 		if not is_waiting_after_player_left and not is_returning_to_spawn:
 			is_waiting_after_player_left = true
 			player_left_navmesh_timer = 0.0
 	else:
 		if is_waiting_after_player_left or is_returning_to_spawn:
-			_cancel_return_to_spawn()
-			player_spotted = true
-			last_known_position = player.global_position
+			if player.is_hidden:
+				# Player is hidden in a trashcan that happens to sit on the navmesh.
+				# Do NOT cancel the return — just let him leave.
+				print("[NAVMESH] Player on navmesh but is_hidden=true, ignoring re-spot.")
+			else:
+				print("[NAVMESH] Player back on navmesh and visible — cancelling return & re-spotting.")
+				_cancel_return_to_spawn()
+				player_spotted = true
+				last_known_position = player.global_position
 
 func _cancel_return_to_spawn() -> void:
 	is_waiting_after_player_left = false
@@ -295,20 +377,39 @@ func _cancel_return_to_spawn() -> void:
 
 func _process_vision_logic() -> void:
 	if is_dragging or is_returning_to_spawn: return
-	
+
+	var could_see_before = player_spotted
 	var can_see_now = _perform_vision_check()
+
+	print("[VISION] could_see_before=%s  can_see_now=%s  player.is_hidden=%s  get_em_anyway=%s  is_searching=%s  is_waiting=%s  wait_timer=%.1f" % [could_see_before, can_see_now, player.is_hidden, get_em_anyway, is_searching, is_waiting, wait_timer])
+
 	if can_see_now:
+		if not could_see_before:
+			print("[VISION] 👁️ Player spotted!")
 		last_known_position = player.global_position
 		player_spotted = true
 		is_searching = false
 		is_waiting = false
+		get_em_anyway = false
 		wait_timer = 0.0
-	elif player_spotted:
+
+	elif could_see_before and not can_see_now:
+		print("[VISION] 🙈 Lost sight of player. is_hidden=%s → get_em_anyway will be=%s" % [player.is_hidden, player.is_hidden])
 		player_spotted = false
-		is_searching = true
-		get_em_anyway = player.is_hidden
-	
-	if not player_spotted and not is_searching and not is_waiting:
+
+		if player.is_hidden:
+			get_em_anyway = true
+			is_searching = false
+			is_waiting = false
+			print("[VISION] 🗑️ Player hid while watched → get_em_anyway=true, heading to last_known_position=%s" % last_known_position)
+		else:
+			get_em_anyway = false
+			is_searching = true
+			is_waiting = false
+			wait_timer = 0.0
+			print("[VISION] 🔍 Lost sight normally → is_searching=true, heading to last_known_position=%s" % last_known_position)
+
+	if not player_spotted and not is_searching and not is_waiting and not get_em_anyway:
 		if eye_cast: eye_cast.rotation = Vector3.ZERO
 
 func _perform_vision_check() -> bool:
@@ -318,25 +419,27 @@ func _perform_vision_check() -> bool:
 	var target_pos = player.global_position + Vector3(0, 0.6, 0)
 	eye_cast.look_at(target_pos, Vector3.UP)
 	eye_cast.target_position = Vector3(0, 0, -(global_position.distance_to(player.global_position) + 1.0))
-	eye_cast.force_raycast_update() 
+	eye_cast.force_raycast_update()
 	if eye_cast.is_colliding():
 		var hit = eye_cast.get_collider()
 		return hit == player or hit.is_in_group("player")
 	return false
 
 func update_pathfinding_target() -> void:
-	if is_returning_to_spawn: 
+	if is_returning_to_spawn:
 		navigation_agent_3d.target_position = spawn_position
 	elif is_dragging:
 		if dump_marker: navigation_agent_3d.target_position = dump_marker.global_position
-	elif player_spotted: 
+	elif player_spotted:
 		navigation_agent_3d.target_position = player.global_position
-	elif is_searching: 
+	elif get_em_anyway:
+		# FIX #2: Head to last known position (where they hid)
 		navigation_agent_3d.target_position = last_known_position
-	elif is_waiting: 
+	elif is_searching:
+		# FIX #1: Head to last known position first
+		navigation_agent_3d.target_position = last_known_position
+	elif is_waiting:
 		navigation_agent_3d.target_position = wander_target
-	elif get_em_anyway and player.is_hidden: 
-		navigation_agent_3d.target_position = last_known_position
 
 func stop_moving() -> void:
 	velocity.x = move_toward(velocity.x, 0, 0.5)
@@ -346,14 +449,19 @@ func stop_moving() -> void:
 			animation_player.play("animations/idle3")
 
 func _start_return_to_spawn() -> void:
+	print("[SPAWN] 🚚 _start_return_to_spawn called. Heading to spawn_position=%s" % spawn_position)
 	is_returning_to_spawn = true
 	player_spotted = false
 	is_searching = false
 	is_waiting = false
 	is_waiting_after_player_left = false
 	get_em_anyway = false
+	navigation_agent_3d.target_position = spawn_position
 
 func _despawn() -> void:
+	print("[SPAWN] 💀 _despawn called. Emitting returned_to_truck and freeing.")
+	if is_phasing:
+		_end_phase_through()
 	returned_to_truck.emit()
 	queue_free()
 
@@ -369,7 +477,10 @@ func _pick_next_wander_point() -> void:
 	navigation_agent_3d.target_position = wander_target
 
 func _stop_searching() -> void:
-	is_waiting = false; player_spotted = false; is_searching = false; get_em_anyway = false
+	is_waiting = false
+	player_spotted = false
+	is_searching = false
+	get_em_anyway = false
 	if eye_cast: eye_cast.rotation = Vector3.ZERO
 
 func start_dragging():
@@ -378,6 +489,7 @@ func start_dragging():
 	player_spotted = false
 	is_searching = false
 	is_waiting = false
+	get_em_anyway = false
 	drag_timer = 0.0
 	cached_player_cam = player.CAMERA
 	cached_player_anim = player.ANIMATIONPLAYER
@@ -418,42 +530,33 @@ func _on_proximity_alert_area_body_entered(body: Node3D) -> void:
 		player_spotted = true
 		is_searching = false
 		is_waiting = false
+		get_em_anyway = false
 		last_known_position = player.global_position
 
 func get_current_state() -> State: return current_state
-
-
 
 func talk_to(dialog_to_play: String):
 	if DialogicHandler.is_running:
 		return
 
 	if player:
-		# 1. Force the player to look at the bad guy
 		player.force_look = true
-		# Use a marker if it exists, otherwise just the bad guy's position
 		if has_node("FaceMarker"):
 			player.forced_look_target = $FaceMarker.global_position
 		else:
 			player.forced_look_target = global_position + Vector3(0, 1.5, 0)
 
-		# 2. Make the bad guy look at the player
 		var dir_to_player := (player.global_position - global_position).normalized()
 		var target_yaw = atan2(dir_to_player.x, dir_to_player.z)
-		
-		# Smoothly rotate or snap (snapping here for simplicity)
 		global_rotation.y = target_yaw
 
-	# 3. Handle signals safely
 	if not Dialogic.timeline_ended.is_connected(_on_timeline_ended):
 		Dialogic.timeline_ended.connect(_on_timeline_ended)
 
 	DialogicHandler.run(dialog_to_play)
 
-
 func _on_timeline_ended():
 	if player:
 		player.force_look = false
-	# Disconnect to keep things clean for the next interaction
 	if Dialogic.timeline_ended.is_connected(_on_timeline_ended):
 		Dialogic.timeline_ended.disconnect(_on_timeline_ended)

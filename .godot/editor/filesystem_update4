@@ -7,8 +7,7 @@ res://CRT_shader_material.tres
 res://red_shader.gdshader
 res://Assets/ice cream truck/truck_with_ai.tscn
 res://main_map.tscn
-res://way_home_3_area.gd
-res://globalscripts/MasterEventHandler.gd
 res://Assets/chars/00_completed chars/badguyWithAI.tscn
 res://globalscripts/badguy_with_ai.gd
-res://globalscripts/npc.gd
+res://globalscripts/MasterEventHandler.gd
+res://globalscripts/doghouse.gd

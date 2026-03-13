@@ -136,30 +136,31 @@ func _on_dialogic_signal(argument: String) -> void:
 
 		"nighttime_ambiance_on":
 			await get_tree().create_timer(0.5).timeout
-			var marker_a = get_tree().current_scene.find_child("Marker3D27", true, false)
-			var marker_b = get_tree().current_scene.find_child("Marker3D25", true, false)
+			var marker_a = get_tree().current_scene.find_child("Marker3D25", true, false)
+			var marker_b = get_tree().current_scene.find_child("Marker3D28", true, false)
 			truckWithAI.set_position_and_target(marker_a, marker_b)
 			truckWithAI.movement_enabled = true
-			truckWithAI.searching_enabled = false
+			truckWithAI.searching_enabled = true
 
 		"truck_arrived_at_point":
-			var marker_b = get_tree().current_scene.find_child("Marker3D25", true, false)
+			var marker_b = get_tree().current_scene.find_child("Marker3D28", true, false)
 			
 			# Ensure we are at the right destination
-			if truckWithAI.current_target == marker_b:
-				truckWithAI.movement_enabled = false
-				truckWithAI.searching_enabled = false		
-				truckWithAI.spawner.start_spawn_sequence()
-				await get_tree().create_timer(1.0).timeout
-				badguy = get_tree().get_first_node_in_group("badguy") as Node3D
-				if badguy:
-					print("Got badguy reference, freezing him.")
-					badguy.freeze = true	
-				else:
-					print("Error: Badguy not found after spawn sequence.")
+			# if truckWithAI.current_target == marker_b:
+			# 	truckWithAI.movement_enabled = false
+			# 	truckWithAI.searching_enabled = false		
+			# 	truckWithAI.spawner.start_spawn_sequence()
+			# 	await get_tree().create_timer(1.0).timeout
+			# 	badguy = get_tree().get_first_node_in_group("badguy") as Node3D
+			# 	if badguy:
+			# 		print("Got badguy reference, freezing him.")
+			# 		badguy.freeze = true	
+			# 	else:
+			# 		print("Error: Badguy not found after spawn sequence.")
 
 		"trigger_way_home_3":
-			badguy.talk_to("way_home_3")
+			pass
+			#badguy.talk_to("way_home_3")
 
 
 		"way_home_3_end":
