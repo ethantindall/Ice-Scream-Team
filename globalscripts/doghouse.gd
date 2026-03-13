@@ -243,7 +243,7 @@ func _on_badguy_area_body_entered(body: Node3D) -> void:
 	if body == badguy and player_hidden_here and player.is_hidden and badguy.get_em_anyway:
 		print("THE BADGUY IS IN THE AREA")
 		hide_exit()
-		#await get_tree().create_timer(2.0).timeout
+		await get_tree().create_timer(2.0).timeout
 		#badguy.call_deferred("start_dragging")
 	else:
 		print("not the badguy")
