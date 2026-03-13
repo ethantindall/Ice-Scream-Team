@@ -21,6 +21,7 @@ var camera_forward_offset: float = 0.0
 var player_hidden_here: bool = false
 var _camera_ready: bool = false
 var sfx_hide: AudioStream = null
+var disable_hide_enter: bool = false
 
 @onready var player: CharacterBody3D = get_tree().get_first_node_in_group("player") as CharacterBody3D
 @onready var collision_shape = player.get_node_or_null("Collision") if player else null
@@ -64,6 +65,9 @@ func get_display_text():
 
 
 func hide_enter():
+	if disable_hide_enter:
+		return
+
 	badguy = get_tree().get_first_node_in_group("badguy") as CharacterBody3D
 	if not player:
 		push_warning("Player not found")
@@ -231,6 +235,7 @@ func hide_exit():
 
 
 func _on_badguy_area_body_entered(body: Node3D) -> void:
+	disable_hide_enter = true
 	if badguy == null:
 		badguy = get_tree().get_first_node_in_group("badguy") as CharacterBody3D
 	if body != badguy:
@@ -247,3 +252,4 @@ func _on_badguy_area_body_entered(body: Node3D) -> void:
 		#badguy.call_deferred("start_dragging")
 	else:
 		print("not the badguy")
+		disable_hide_enter = false

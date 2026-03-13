@@ -12,3 +12,4 @@ res://globalscripts/badguy_with_ai.gd
 res://globalscripts/MasterEventHandler.gd
 res://globalscripts/doghouse.gd
 res://addons/fpc/character.gd
+res://Assets/doghouse/doghouse.tscn
