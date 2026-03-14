@@ -1,7 +1,10 @@
+AudioStreamPlayer3D
+CollisionShape3D
+Area3D
+Marker3D
 CharacterBody3D
 TextEdit
 WorldEnvironment
-CollisionShape3D
 ColorRect
 HBoxContainer
 CheckBox
@@ -10,6 +13,3 @@ Control
 VBoxContainer
 HSlider
 Label
-ProgressBar
-StaticBody3D
-CSGCombiner3D

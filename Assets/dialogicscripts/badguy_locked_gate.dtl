@@ -1,0 +1,3 @@
+timmy: It's locked. I'm going to have to find another way out.
+[signal arg="badguy_locked_gate_end"]
+[end_timeline]

@@ -52,9 +52,12 @@ directories/dch_directory={
 "timmy": "res://Assets/dialogicscripts/timmy.dch"
 }
 directories/dtl_directory={
+"badguy_locked_gate": "res://Assets/dialogicscripts/badguy_locked_gate.dtl",
 "boone_filler": "res://Assets/dialogicscripts/boone_filler.dtl",
 "chock_block_inspect": "res://Assets/dialogicscripts/chock_block_inspect.dtl",
 "demo_done": "res://Assets/dialogicscripts/demo_done.dtl",
+"evasion_warning": "res://Assets/dialogicscripts/evasion_warning.dtl",
+"hiding_prompt_1": "res://Assets/dialogicscripts/hiding_prompt_1.dtl",
 "icm_filler_1": "res://Assets/dialogicscripts/icm_filler_1.dtl",
 "jenkins_1": "res://Assets/dialogicscripts/jenkins_1.dtl",
 "jenkins_2": "res://Assets/dialogicscripts/jenkins_2.dtl",

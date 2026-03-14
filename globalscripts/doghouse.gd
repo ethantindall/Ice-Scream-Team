@@ -38,6 +38,7 @@ var sfx_steps: Array[AudioStream] = [
 	preload("res://Assets/sounds/FreeSteps/Dirt/Steps_dirt-003.ogg")
 ]
 
+var is_transitioning := false
 
 
 func _ready():
@@ -65,8 +66,9 @@ func get_display_text():
 
 
 func hide_enter():
-	if disable_hide_enter:
+	if disable_hide_enter or is_transitioning:
 		return
+	is_transitioning = true
 
 	badguy = get_tree().get_first_node_in_group("badguy") as CharacterBody3D
 	if not player:
@@ -121,7 +123,7 @@ func hide_enter():
 	tween2.tween_property(player_blinder, "modulate:a", 0.0, 0.25)
 	await tween2.finished
 	player_blinder.visible = false
-
+	is_transitioning = false
 			
 func _physics_process(delta):
 	if player.is_hidden and $Camera3D and _camera_ready:
@@ -235,11 +237,11 @@ func hide_exit():
 
 
 func _on_badguy_area_body_entered(body: Node3D) -> void:
-	disable_hide_enter = true
 	if badguy == null:
 		badguy = get_tree().get_first_node_in_group("badguy") as CharacterBody3D
 	if body != badguy:
 		return
+	disable_hide_enter = true
 
 	print("Body entered badguy area: ", body.name)
 	print("Player hidden here: ", player_hidden_here)
@@ -247,6 +249,7 @@ func _on_badguy_area_body_entered(body: Node3D) -> void:
 	print("Badguy get_em_anyway: ", badguy.get_em_anyway)
 	if body == badguy and player_hidden_here and player.is_hidden and badguy.get_em_anyway:
 		print("THE BADGUY IS IN THE AREA")
+		await get_tree().create_timer(0.5).timeout
 		hide_exit()
 		await get_tree().create_timer(2.0).timeout
 		#badguy.call_deferred("start_dragging")

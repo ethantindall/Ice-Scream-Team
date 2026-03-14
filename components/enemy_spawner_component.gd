@@ -9,6 +9,8 @@ var current_enemy: Node3D = null
 var is_processing_spawn := false
 var navmesh_size = 100.0
 
+var sfx_spawn = preload("res://Assets/sounds/cardoorslam.mp3")
+
 signal enemy_spawned(enemy_node)
 signal enemy_despawned
 
@@ -52,6 +54,7 @@ func _setup_navigation_mesh() -> void:
 	nav_mesh.edge_max_error = 1.3
 
 func start_spawn_sequence() -> void:
+	print("SPAWNING BADGUY")
 	if is_processing_spawn or current_enemy or not nav_region: return
 	is_processing_spawn = true
 	
@@ -67,6 +70,9 @@ func start_spawn_sequence() -> void:
 	# 3. Ensure the region is active
 	nav_region.enabled = true
 	
+	#play audio
+	play_sfx(sfx_spawn)
+
 	# 4. Bake (using thread is safer for performance)
 	nav_region.bake_navigation_mesh(true)
 	
@@ -100,3 +106,14 @@ func _on_enemy_returned() -> void:
 	
 	MasterEventHandler.badguy = null
 	enemy_despawned.emit()
+	print("BADGUY DESPAWNED")
+	play_sfx(sfx_spawn)
+
+# Helper function to spawn and play 3D sounds 
+func play_sfx(stream: AudioStream):
+	if not stream: return # Safety check
+	var sound = AudioStreamPlayer3D.new()
+	sound.stream = stream
+	add_child(sound)
+	sound.play()
+	sound.finished.connect(func(): sound.queue_free())

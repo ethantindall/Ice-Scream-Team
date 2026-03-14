@@ -31,6 +31,8 @@ var mikeMomAtMikeHouse: Node3D = null
 var playerInitialPosition: Vector3 = Vector3(431, 4, 399)
 
 var remaining_chock_blocks = 2
+var badguy_locked_gate:bool = false
+
 
 func _ready() -> void:
 	player = get_tree().get_first_node_in_group("player") as CharacterBody3D
@@ -136,41 +138,109 @@ func _on_dialogic_signal(argument: String) -> void:
 
 		"nighttime_ambiance_on":
 			await get_tree().create_timer(0.5).timeout
-			var marker_a = get_tree().current_scene.find_child("Marker3D25", true, false)
-			var marker_b = get_tree().current_scene.find_child("Marker3D28", true, false)
+			var marker_a = get_tree().current_scene.find_child("Marker3D27", true, false)
+			var marker_b = get_tree().current_scene.find_child("Marker3D25", true, false)
 			truckWithAI.set_position_and_target(marker_a, marker_b)
 			truckWithAI.movement_enabled = true
 			truckWithAI.searching_enabled = true
+			# 1. Find the Gate pivot
+			var pivot_point = get_tree().current_scene.get_node_or_null("PrivacyFence/FirstOpenGate/PivotPoint")
+			if pivot_point:
+				print("PivotPoint found under gate.")
+				pivot_point.rotation_degrees = Vector3(90, 0, 90)
+			else:
+				print("PivotPoint not found under gate!")
 
 		"truck_arrived_at_point":
-			var marker_b = get_tree().current_scene.find_child("Marker3D28", true, false)
+			var marker_b = get_tree().current_scene.find_child("Marker3D25", true, false)
 			
 			# Ensure we are at the right destination
-			# if truckWithAI.current_target == marker_b:
-			# 	truckWithAI.movement_enabled = false
-			# 	truckWithAI.searching_enabled = false		
-			# 	truckWithAI.spawner.start_spawn_sequence()
-			# 	await get_tree().create_timer(1.0).timeout
-			# 	badguy = get_tree().get_first_node_in_group("badguy") as Node3D
-			# 	if badguy:
-			# 		print("Got badguy reference, freezing him.")
-			# 		badguy.freeze = true	
-			# 	else:
-			# 		print("Error: Badguy not found after spawn sequence.")
+			if truckWithAI.current_target == marker_b:
+				truckWithAI.movement_enabled = false
+				truckWithAI.searching_enabled = false		
+				truckWithAI.spawner.start_spawn_sequence()
+				await get_tree().create_timer(1.0).timeout
+				badguy = get_tree().get_first_node_in_group("badguy") as Node3D
+				if badguy:
+					print("Got badguy reference, freezing him.")
+					badguy.freeze = true	
+				else:
+					print("Error: Badguy not found after spawn sequence.")
 
 		"trigger_way_home_3":
 			pass
-			#badguy.talk_to("way_home_3")
-
+			badguy.talk_to("way_home_3")
 
 		"way_home_3_end":
-			GoalManager.update_quest("RUN!")
-			await get_tree().create_timer(2.0).timeout
+			GoalManager.update_quest("RUN AND HIDE!")
+			
+			await get_tree().create_timer(1.0).timeout
+
+			var gate_marker = get_tree().current_scene.get_node_or_null("PrivacyFence/FirstOpenGate/Marker3D")
+			if gate_marker:
+				var direction_to_gate = (gate_marker.global_position - player.global_position).normalized()
+				
+				# Calculate the final goal angle (+ PI to fix the 180 flip)
+				var target_rotation_y = atan2(direction_to_gate.x, direction_to_gate.z) + PI
+				
+				# Start at current rotation
+				var start_rotation = player.rotation.y
+				
+				var tween = create_tween()
+				# Instead of tween_property, we use tween_method to call a custom lerp
+				tween.tween_method(
+					func(val): player.rotation.y = lerp_angle(start_rotation, target_rotation_y, val),
+					0.0, # Start 'val' at 0
+					1.0, # End 'val' at 1
+					0.8  # Duration in seconds
+				).set_trans(Tween.TRANS_SINE)
+
+			await get_tree().create_timer(5.0).timeout
 			if badguy:
 				badguy.freeze = false
 			if truckWithAI:
 				truckWithAI.movement_enabled = true
 				truckWithAI.searching_enabled = true
+
+		"hiding_prompt":
+			var doghouse_marker = get_tree().current_scene.get_node_or_null("NIGHTTIME_STUFF/HidingPromptArea/DoghouseMarker3D")
+			if doghouse_marker:
+				var direction_to_doghouse = (doghouse_marker.global_position - player.global_position).normalized()
+				
+				# Calculate the final goal angle (+ PI to fix the 180 flip)
+				var target_rotation_y = atan2(direction_to_doghouse.x, direction_to_doghouse.z) + PI
+				
+				# Start at current rotation
+				var start_rotation = player.rotation.y
+				
+				var tween = create_tween()
+				# Instead of tween_property, we use tween_method to call a custom lerp
+				tween.tween_method(
+					func(val): player.rotation.y = lerp_angle(start_rotation, target_rotation_y, val),
+					0.0, # Start 'val' at 0
+					1.0, # End 'val' at 1
+					0.4  # Duration in seconds
+				).set_trans(Tween.TRANS_SINE)
+			if badguy:
+				badguy.freeze = true
+
+				DialogicHandler.run("hiding_prompt_1")
+
+		"hiding_prompt_complete":
+			if badguy:
+				badguy.freeze = false
+				#connect to badguy return to truck signal
+				if not badguy.is_connected("returned_to_truck", _on_badguy_returned_to_truck):
+					badguy.connect("returned_to_truck", _on_badguy_returned_to_truck)
+					#when badguy returns to truck close gate
+
+		"badguy_locked_gate_end":
+			badguy_locked_gate = false
+
+		"successfully_hid":
+			pass
+
+
 
 		"caught":
 			if player:
@@ -184,6 +254,18 @@ func _on_dialogic_signal(argument: String) -> void:
 				boones_car.follow_path()
 
 # --- Helper Functions ---
+
+
+
+func _on_badguy_returned_to_truck():
+	var pivot_point = get_tree().current_scene.get_node_or_null("PrivacyFence/FirstOpenGate/PivotPoint")
+	if pivot_point:
+		print("PivotPoint found under gate.")
+		pivot_point.rotation_degrees = Vector3(90, 0, 0)
+		badguy_locked_gate = true
+	else:
+		print("PivotPoint not found under gate!")
+
 
 func _trigger_drive_by(truckname) -> void:
 	var trucknode = get_tree().current_scene.find_child(truckname, true, false)

@@ -25,7 +25,7 @@ func _ready():
 	target_rotation = (closed_rotation + open_angle) if is_open else closed_rotation
 	_update_padlocks()
 
-## Helper function to spawn and play 3D sounds 
+# Helper function to spawn and play 3D sounds 
 func play_sfx(stream: AudioStream):
 	if not stream: return # Safety check
 	var sound = AudioStreamPlayer3D.new()
@@ -55,7 +55,9 @@ func toggle():
 	elif locked:
 		print(item_name + " is locked! (Rattle)")
 		play_sfx(sfx_rattle) # Played the rattle sound here
-		# Optional: you could add a small camera shake or gate jitter here too
+		if MasterEventHandler.badguy_locked_gate == true:
+			await get_tree().create_timer(0.5).timeout
+			DialogicHandler.run("badguy_locked_gate")
 		return
 		
 	# CASE 3: Normal open/close

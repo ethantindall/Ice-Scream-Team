@@ -1,3 +1,6 @@
+res://components
+res://Assets/dialogicscripts
+res://Assets/fence
 res://globalscripts
 res://Assets/envs
 res://
@@ -5,14 +8,11 @@ res://menus
 res://Assets/occluder
 res://Assets/busstop
 res://Assets/cars
-res://Assets/dialogicscripts
 res://Assets
 res://Assets/balls
-res://Assets/fence
 res://Assets/plants
 res://Assets/bikes
 res://Assets/animations
-res://components
 res://Assets/ice cream truck
 res://Assets/truck3
 C:/Users/Ethan/Documents/GitHub/Ice-Scream-Team
